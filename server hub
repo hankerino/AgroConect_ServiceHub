@@ -1,1 +1,297 @@
+import React, { useState, useEffect } from "react";
 
+// Categorias em português
+const categories = [
+  { id: "fertilizantes", label: "Fornecedores de Fertilizantes" },
+  { id: "drone", label: "Mapeamento por Drone" },
+  { id: "agronomos", label: "Agrônomos" },
+  { id: "solo", label: "Análise de Solo" },
+  { id: "trabalhadores", label: "Trabalhadores Rurais" },
+];
+
+// Provedores padrão
+const defaultProviders = {
+  fertilizantes: [
+    {
+      nome: "AgroFert Brasil",
+      descricao: "Fertilizantes premium para todos os tipos de culturas.",
+      contato: "agrofert@exemplo.com",
+    },
+    {
+      nome: "SuperAdubo",
+      descricao: "Entrega rápida de fertilizantes personalizados.",
+      contato: "vendas@superadubo.com.br",
+    },
+  ],
+  drone: [
+    {
+      nome: "DroneMap",
+      descricao: "Mapeamento aéreo de precisão e análise de produtividade.",
+      contato: "contato@dronemap.com.br",
+    },
+    {
+      nome: "CampoVisão",
+      descricao: "Serviços de drone para monitoramento e inspeção de plantações.",
+      contato: "servicos@campovisao.com",
+    },
+  ],
+  agronomos: [
+    {
+      nome: "Dra. Paula Souza",
+      descricao: "Consultoria agronômica em português e inglês.",
+      contato: "paulasouza@agro.com",
+    },
+    {
+      nome: "Eng. Carlos Lima",
+      descricao: "Especialista em manejo sustentável e otimização de safras.",
+      contato: "carloslima@agrotech.com",
+    },
+  ],
+  solo: [
+    {
+      nome: "SoloTest",
+      descricao: "Coleta e análise laboratorial de amostras de solo.",
+      contato: "analises@solotest.com",
+    },
+    {
+      nome: "TerraCerta",
+      descricao: "Diagnóstico completo da fertilidade do solo.",
+      contato: "info@terracerta.com.br",
+    },
+  ],
+  trabalhadores: [
+    {
+      nome: "Equipe Rural",
+      descricao: "Equipe de trabalhadores para plantio, colheita e manutenção.",
+      contato: "rural@trabalhadores.com",
+    },
+    {
+      nome: "Mão na Terra",
+      descricao: "Contratação de mão de obra qualificada para fazendas.",
+      contato: "contato@maonaterra.com.br",
+    },
+  ],
+};
+
+// Funções para localStorage
+function getProvidersLS() {
+  const ls = localStorage.getItem("agroconect-providers");
+  if (ls) return JSON.parse(ls);
+  return defaultProviders;
+}
+function setProvidersLS(providers) {
+  localStorage.setItem("agroconect-providers", JSON.stringify(providers));
+}
+
+function App() {
+  const [tab, setTab] = useState(0);
+  const [providers, setProviders] = useState(getProvidersLS());
+  const [categoriaSelecionada, setCategoriaSelecionada] = useState("fertilizantes");
+  const [search, setSearch] = useState("");
+  const [form, setForm] = useState({
+    nome: "",
+    categoria: categories[0].id,
+    descricao: "",
+    contato: "",
+  });
+  const [formSuccess, setFormSuccess] = useState(false);
+
+  useEffect(() => {
+    setProviders(getProvidersLS());
+  }, []);
+
+  useEffect(() => {
+    setProvidersLS(providers);
+  }, [providers]);
+
+  const handleRegister = (e) => {
+    e.preventDefault();
+    if (!form.nome || !form.categoria || !form.descricao || !form.contato) return;
+    const newProviders = {
+      ...providers,
+      [form.categoria]: [
+        ...(providers[form.categoria] || []),
+        {
+          nome: form.nome,
+          descricao: form.descricao,
+          contato: form.contato,
+        },
+      ],
+    };
+    setProviders(newProviders);
+    setForm({
+      nome: "",
+      categoria: categories[0].id,
+      descricao: "",
+      contato: "",
+    });
+    setFormSuccess(true);
+    setTimeout(() => setFormSuccess(false), 3500);
+    setTab(0);
+  };
+
+  const filteredProviders =
+    providers[categoriaSelecionada]?.filter((p) =>
+      p.nome.toLowerCase().includes(search.toLowerCase()) ||
+      p.descricao.toLowerCase().includes(search.toLowerCase())
+    ) || [];
+
+  return (
+    <div className="min-h-screen flex flex-col bg-green-50">
+      {/* Cabeçalho */}
+      <header className="bg-green-700 text-white py-6 px-4 rounded-b-2xl shadow-lg">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-2">
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-bold">AgroConect</h1>
+            <p className="mt-1 text-base sm:text-lg">Conectando agricultores e fornecedores de serviços agrícolas</p>
+          </div>
+          <div className="mt-3 md:mt-0 flex gap-2 w-full md:w-auto">
+            <button
+              className={`w-1/2 md:w-auto px-4 py-3 rounded-xl text-base font-semibold transition ${
+                tab === 0 ? "bg-white text-green-700" : "bg-green-800 text-white"
+              }`}
+              onClick={() => setTab(0)}
+            >
+              Encontre um serviço
+            </button>
+            <button
+              className={`w-1/2 md:w-auto px-4 py-3 rounded-xl text-base font-semibold transition ${
+                tab === 1 ? "bg-white text-green-700" : "bg-green-800 text-white"
+              }`}
+              onClick={() => setTab(1)}
+            >
+              Cadastre seu serviço
+            </button>
+          </div>
+        </div>
+      </header>
+
+      {/* Conteúdo principal */}
+      <main className="flex-1 w-full max-w-3xl mx-auto mt-6 px-2 sm:px-4 mb-24">
+        {tab === 0 ? (
+          <>
+            <div className="flex flex-col sm:flex-row gap-3 items-center mb-4">
+              <select
+                className="rounded-xl p-3 border border-green-300 bg-white w-full sm:w-auto"
+                value={categoriaSelecionada}
+                onChange={(e) => setCategoriaSelecionada(e.target.value)}
+              >
+                {categories.map((cat) => (
+                  <option key={cat.id} value={cat.id}>
+                    {cat.label}
+                  </option>
+                ))}
+              </select>
+              <input
+                type="text"
+                placeholder="Buscar por nome ou descrição..."
+                className="rounded-xl p-3 border border-green-300 flex-1 w-full"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                autoComplete="off"
+              />
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+              {filteredProviders.length === 0 && (
+                <div className="col-span-2 text-center text-gray-500 text-lg">
+                  Nenhum serviço encontrado.
+                </div>
+              )}
+              {filteredProviders.map((prov, i) => (
+                <div
+                  key={i}
+                  className="bg-white rounded-2xl shadow p-5 flex flex-col gap-2 border border-green-100"
+                >
+                  <h3 className="text-lg font-bold text-green-700">{prov.nome}</h3>
+                  <p className="text-gray-700 text-base">{prov.descricao}</p>
+                  <a
+                    href={`mailto:${prov.contato}`}
+                    className="mt-2 inline-block bg-green-600 hover:bg-green-700 text-white px-4 py-3 rounded-xl transition text-center font-semibold text-base"
+                  >
+                    Entrar em contato
+                  </a>
+                </div>
+              ))}
+            </div>
+          </>
+        ) : (
+          <>
+            <h2 className="text-xl sm:text-2xl font-bold mb-4 text-green-800">
+              Cadastre seu serviço
+            </h2>
+            <form
+              className="bg-white rounded-2xl shadow p-6 flex flex-col gap-5 border border-green-100"
+              onSubmit={handleRegister}
+            >
+              <label className="flex flex-col gap-1">
+                <span className="font-semibold">Nome do serviço ou empresa*</span>
+                <input
+                  required
+                  className="rounded-xl p-3 border border-green-300"
+                  type="text"
+                  value={form.nome}
+                  onChange={(e) => setForm({ ...form, nome: e.target.value })}
+                  autoComplete="off"
+                />
+              </label>
+              <label className="flex flex-col gap-1">
+                <span className="font-semibold">Categoria*</span>
+                <select
+                  required
+                  className="rounded-xl p-3 border border-green-300"
+                  value={form.categoria}
+                  onChange={(e) => setForm({ ...form, categoria: e.target.value })}
+                >
+                  {categories.map((cat) => (
+                    <option key={cat.id} value={cat.id}>
+                      {cat.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="flex flex-col gap-1">
+                <span className="font-semibold">Descrição do serviço*</span>
+                <textarea
+                  required
+                  className="rounded-xl p-3 border border-green-300"
+                  value={form.descricao}
+                  onChange={(e) => setForm({ ...form, descricao: e.target.value })}
+                  rows={2}
+                  autoComplete="off"
+                />
+              </label>
+              <label className="flex flex-col gap-1">
+                <span className="font-semibold">E-mail de contato*</span>
+                <input
+                  required
+                  className="rounded-xl p-3 border border-green-300"
+                  type="email"
+                  value={form.contato}
+                  onChange={(e) => setForm({ ...form, contato: e.target.value })}
+                  autoComplete="off"
+                />
+              </label>
+              <button
+                type="submit"
+                className="bg-green-700 text-white px-6 py-3 rounded-xl font-bold hover:bg-green-800 transition text-lg"
+              >
+                Cadastrar serviço
+              </button>
+              {formSuccess && (
+                <div className="text-green-700 font-semibold text-center mt-2">
+                  Serviço cadastrado com sucesso!
+                </div>
+              )}
+            </form>
+          </>
+        )}
+      </main>
+      {/* Rodapé fixo para mobile */}
+      <footer className="fixed bottom-0 left-0 w-full bg-green-100 text-green-700 py-3 text-center text-base shadow-inner z-10">
+        © {new Date().getFullYear()} AgroConect | Feito para agricultores brasileiros
+      </footer>
+    </div>
+  );
+}
+
+export default App;
