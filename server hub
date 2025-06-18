@@ -1,297 +1,632 @@
-import React, { useState, useEffect } from "react";
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgroConect - Your Agricultural Assistant</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #22c55e 0%, #16a34a 50%, #15803d 100%);
+        }
+        
+        .microphone-pulse {
+            animation: pulse 2s infinite;
+            will-change: transform;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7); }
+            70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(59, 130, 246, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
+        }
+        
+        .recording {
+            background: #ef4444 !important;
+            animation: recordingPulse 1s infinite;
+        }
+        
+        @keyframes recordingPulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        
+        .modal-overlay {
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+        }
+        
+        .slide-up {
+            animation: slideUp 0.3s ease-out;
+        }
+        
+        @keyframes slideUp {
+            from { transform: translateY(100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .service-card {
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            will-change: transform;
+        }
+        
+        .service-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+            border-color: #22c55e;
+        }
+        
+        .service-card:focus {
+            outline: 2px solid #22c55e;
+            outline-offset: 2px;
+        }
+        
+        .voice-wave {
+            display: inline-block;
+            width: 4px;
+            height: 20px;
+            background: #3b82f6;
+            margin: 0 2px;
+            animation: wave 1s infinite ease-in-out;
+            will-change: transform;
+        }
+        
+        .voice-wave:nth-child(2) { animation-delay: 0.1s; }
+        .voice-wave:nth-child(3) { animation-delay: 0.2s; }
+        .voice-wave:nth-child(4) { animation-delay: 0.3s; }
+        .voice-wave:nth-child(5) { animation-delay: 0.4s; }
+        
+        @keyframes wave {
+            0%, 40%, 100% { transform: scaleY(0.4); }
+            20% { transform: scaleY(1); }
+        }
 
-// Categorias em português
-const categories = [
-  { id: "fertilizantes", label: "Fornecedores de Fertilizantes" },
-  { id: "drone", label: "Mapeamento por Drone" },
-  { id: "agronomos", label: "Agrônomos" },
-  { id: "solo", label: "Análise de Solo" },
-  { id: "trabalhadores", label: "Trabalhadores Rurais" },
-];
+        .language-dropdown {
+            position: relative;
+            display: inline-block;
+        }
 
-// Provedores padrão
-const defaultProviders = {
-  fertilizantes: [
-    {
-      nome: "AgroFert Brasil",
-      descricao: "Fertilizantes premium para todos os tipos de culturas.",
-      contato: "agrofert@exemplo.com",
-    },
-    {
-      nome: "SuperAdubo",
-      descricao: "Entrega rápida de fertilizantes personalizados.",
-      contato: "vendas@superadubo.com.br",
-    },
-  ],
-  drone: [
-    {
-      nome: "DroneMap",
-      descricao: "Mapeamento aéreo de precisão e análise de produtividade.",
-      contato: "contato@dronemap.com.br",
-    },
-    {
-      nome: "CampoVisão",
-      descricao: "Serviços de drone para monitoramento e inspeção de plantações.",
-      contato: "servicos@campovisao.com",
-    },
-  ],
-  agronomos: [
-    {
-      nome: "Dra. Paula Souza",
-      descricao: "Consultoria agronômica em português e inglês.",
-      contato: "paulasouza@agro.com",
-    },
-    {
-      nome: "Eng. Carlos Lima",
-      descricao: "Especialista em manejo sustentável e otimização de safras.",
-      contato: "carloslima@agrotech.com",
-    },
-  ],
-  solo: [
-    {
-      nome: "SoloTest",
-      descricao: "Coleta e análise laboratorial de amostras de solo.",
-      contato: "analises@solotest.com",
-    },
-    {
-      nome: "TerraCerta",
-      descricao: "Diagnóstico completo da fertilidade do solo.",
-      contato: "info@terracerta.com.br",
-    },
-  ],
-  trabalhadores: [
-    {
-      nome: "Equipe Rural",
-      descricao: "Equipe de trabalhadores para plantio, colheita e manutenção.",
-      contato: "rural@trabalhadores.com",
-    },
-    {
-      nome: "Mão na Terra",
-      descricao: "Contratação de mão de obra qualificada para fazendas.",
-      contato: "contato@maonaterra.com.br",
-    },
-  ],
-};
+        .language-dropdown-content {
+            display: none;
+            position: absolute;
+            right: 0;
+            background-color: white;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            border-radius: 8px;
+            z-index: 1;
+        }
 
-// Funções para localStorage
-function getProvidersLS() {
-  const ls = localStorage.getItem("agroconect-providers");
-  if (ls) return JSON.parse(ls);
-  return defaultProviders;
-}
-function setProvidersLS(providers) {
-  localStorage.setItem("agroconect-providers", JSON.stringify(providers));
-}
+        .language-dropdown:hover .language-dropdown-content,
+        .language-dropdown:focus-within .language-dropdown-content {
+            display: block;
+        }
 
-function App() {
-  const [tab, setTab] = useState(0);
-  const [providers, setProviders] = useState(getProvidersLS());
-  const [categoriaSelecionada, setCategoriaSelecionada] = useState("fertilizantes");
-  const [search, setSearch] = useState("");
-  const [form, setForm] = useState({
-    nome: "",
-    categoria: categories[0].id,
-    descricao: "",
-    contato: "",
-  });
-  const [formSuccess, setFormSuccess] = useState(false);
+        .language-option {
+            color: #374151;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            transition: background-color 0.3s;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+        }
 
-  useEffect(() => {
-    setProviders(getProvidersLS());
-  }, []);
+        .language-option:hover,
+        .language-option:focus {
+            background-color: #f3f4f6;
+            outline: none;
+        }
 
-  useEffect(() => {
-    setProvidersLS(providers);
-  }, [providers]);
+        .language-option.active {
+            background-color: #22c55e;
+            color: white;
+        }
 
-  const handleRegister = (e) => {
-    e.preventDefault();
-    if (!form.nome || !form.categoria || !form.descricao || !form.contato) return;
-    const newProviders = {
-      ...providers,
-      [form.categoria]: [
-        ...(providers[form.categoria] || []),
-        {
-          nome: form.nome,
-          descricao: form.descricao,
-          contato: form.contato,
-        },
-      ],
-    };
-    setProviders(newProviders);
-    setForm({
-      nome: "",
-      categoria: categories[0].id,
-      descricao: "",
-      contato: "",
-    });
-    setFormSuccess(true);
-    setTimeout(() => setFormSuccess(false), 3500);
-    setTab(0);
-  };
+        /* Accessibility improvements */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
 
-  const filteredProviders =
-    providers[categoriaSelecionada]?.filter((p) =>
-      p.nome.toLowerCase().includes(search.toLowerCase()) ||
-      p.descricao.toLowerCase().includes(search.toLowerCase())
-    ) || [];
-
-  return (
-    <div className="min-h-screen flex flex-col bg-green-50">
-      {/* Cabeçalho */}
-      <header className="bg-green-700 text-white py-6 px-4 rounded-b-2xl shadow-lg">
-        <div className="flex flex-col md:flex-row items-center justify-between gap-2">
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-bold">AgroConect</h1>
-            <p className="mt-1 text-base sm:text-lg">Conectando agricultores e fornecedores de serviços agrícolas</p>
-          </div>
-          <div className="mt-3 md:mt-0 flex gap-2 w-full md:w-auto">
-            <button
-              className={`w-1/2 md:w-auto px-4 py-3 rounded-xl text-base font-semibold transition ${
-                tab === 0 ? "bg-white text-green-700" : "bg-green-800 text-white"
-              }`}
-              onClick={() => setTab(0)}
-            >
-              Encontre um serviço
-            </button>
-            <button
-              className={`w-1/2 md:w-auto px-4 py-3 rounded-xl text-base font-semibold transition ${
-                tab === 1 ? "bg-white text-green-700" : "bg-green-800 text-white"
-              }`}
-              onClick={() => setTab(1)}
-            >
-              Cadastre seu serviço
-            </button>
-          </div>
+        /* Keyboard navigation */
+        button:focus,
+        .service-card:focus {
+            outline: 2px solid #3b82f6;
+            outline-offset: 2px;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans">
+    <!-- Header -->
+    <header class="gradient-bg text-white shadow-lg">
+        <div class="container mx-auto px-4 py-6">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="bg-white bg-opacity-20 p-3 rounded-full">
+                        <i class="fas fa-seedling text-2xl" aria-hidden="true"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-2xl font-bold">AgroConect</h1>
+                        <p class="text-green-100 text-sm" data-translate="subtitle">Your Agricultural Assistant</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="language-dropdown">
+                        <button class="bg-white bg-opacity-20 hover:bg-opacity-30 px-4 py-2 rounded-lg transition-all flex items-center"
+                                aria-label="Select language" aria-haspopup="true" aria-expanded="false">
+                            <i class="fas fa-globe mr-2" aria-hidden="true"></i>
+                            <span id="currentLanguage">EN</span>
+                            <i class="fas fa-chevron-down ml-2 text-sm" aria-hidden="true"></i>
+                        </button>
+                        <div class="language-dropdown-content" role="menu">
+                            <button class="language-option active" role="menuitem" data-lang="en">
+                                <i class="fas fa-flag-usa mr-2" aria-hidden="true"></i>English
+                            </button>
+                            <button class="language-option" role="menuitem" data-lang="pt">
+                                <i class="fas fa-flag mr-2" style="color: #009739;" aria-hidden="true"></i>Português (BR)
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-      </header>
+    </header>
 
-      {/* Conteúdo principal */}
-      <main className="flex-1 w-full max-w-3xl mx-auto mt-6 px-2 sm:px-4 mb-24">
-        {tab === 0 ? (
-          <>
-            <div className="flex flex-col sm:flex-row gap-3 items-center mb-4">
-              <select
-                className="rounded-xl p-3 border border-green-300 bg-white w-full sm:w-auto"
-                value={categoriaSelecionada}
-                onChange={(e) => setCategoriaSelecionada(e.target.value)}
-              >
-                {categories.map((cat) => (
-                  <option key={cat.id} value={cat.id}>
-                    {cat.label}
-                  </option>
-                ))}
-              </select>
-              <input
-                type="text"
-                placeholder="Buscar por nome ou descrição..."
-                className="rounded-xl p-3 border border-green-300 flex-1 w-full"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                autoComplete="off"
-              />
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8">
+        <!-- Welcome Section -->
+        <section class="text-center mb-12 fade-in">
+            <div class="max-w-3xl mx-auto">
+                <h2 class="text-4xl font-bold text-gray-800 mb-6" data-translate="main-greeting">
+                    How can I help?
+                </h2>
+                <p class="text-xl text-gray-600 mb-8" data-translate="main-description">
+                    I'm here to connect you with the right agricultural services and support. 
+                    Speak to me or browse our services below.
+                </p>
+                
+                <!-- Voice Input Button -->
+                <div class="flex justify-center mb-8">
+                    <button id="voiceButton" 
+                            class="microphone-pulse bg-blue-500 hover:bg-blue-600 text-white p-6 rounded-full shadow-xl focus:outline-none focus:ring-4 focus:ring-blue-300 transition-all"
+                            aria-label="Start voice input">
+                        <i class="fas fa-microphone text-3xl" aria-hidden="true"></i>
+                        <span class="sr-only" data-translate="voice-input-label">Click to start voice input</span>
+                    </button>
+                </div>
+                
+                <!-- Quick Actions -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+                    <div class="service-card bg-white p-6 rounded-xl shadow-lg cursor-pointer" 
+                         tabindex="0" role="button" aria-label="Equipment Rental Service"
+                         data-service="equipment-rental">
+                        <div class="text-green-500 text-4xl mb-4">
+                            <i class="fas fa-tractor" aria-hidden="true"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-2" data-translate="equipment-rental">Equipment Rental</h3>
+                        <p class="text-gray-600" data-translate="equipment-rental-desc">Find and rent agricultural equipment</p>
+                    </div>
+                    
+                    <div class="service-card bg-white p-6 rounded-xl shadow-lg cursor-pointer" 
+                         tabindex="0" role="button" aria-label="Expert Consultation Service"
+                         data-service="expert-consultation">
+                        <div class="text-blue-500 text-4xl mb-4">
+                            <i class="fas fa-user-tie" aria-hidden="true"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-2" data-translate="expert-consultation">Expert Consultation</h3>
+                        <p class="text-gray-600" data-translate="expert-consultation-desc">Connect with agricultural experts</p>
+                    </div>
+                    
+                    <div class="service-card bg-white p-6 rounded-xl shadow-lg cursor-pointer" 
+                         tabindex="0" role="button" aria-label="Supply Marketplace Service"
+                         data-service="supply-marketplace">
+                        <div class="text-yellow-500 text-4xl mb-4">
+                            <i class="fas fa-shopping-cart" aria-hidden="true"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-2" data-translate="supply-marketplace">Supply Marketplace</h3>
+                        <p class="text-gray-600" data-translate="supply-marketplace-desc">Buy seeds, fertilizers, and tools</p>
+                    </div>
+                </div>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-              {filteredProviders.length === 0 && (
-                <div className="col-span-2 text-center text-gray-500 text-lg">
-                  Nenhum serviço encontrado.
+        </section>
+
+        <!-- Services Grid -->
+        <section class="mb-12">
+            <h3 class="text-2xl font-bold text-gray-800 mb-6 text-center" data-translate="popular-services">Popular Services</h3>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="service-card bg-white p-4 rounded-lg shadow-md text-center cursor-pointer" 
+                     tabindex="0" role="button" data-service="weather-forecast">
+                    <i class="fas fa-cloud-rain text-2xl text-blue-500 mb-2" aria-hidden="true"></i>
+                    <p class="text-sm font-medium" data-translate="weather-forecast">Weather Forecast</p>
                 </div>
-              )}
-              {filteredProviders.map((prov, i) => (
-                <div
-                  key={i}
-                  className="bg-white rounded-2xl shadow p-5 flex flex-col gap-2 border border-green-100"
-                >
-                  <h3 className="text-lg font-bold text-green-700">{prov.nome}</h3>
-                  <p className="text-gray-700 text-base">{prov.descricao}</p>
-                  <a
-                    href={`mailto:${prov.contato}`}
-                    className="mt-2 inline-block bg-green-600 hover:bg-green-700 text-white px-4 py-3 rounded-xl transition text-center font-semibold text-base"
-                  >
-                    Entrar em contato
-                  </a>
+                <div class="service-card bg-white p-4 rounded-lg shadow-md text-center cursor-pointer" 
+                     tabindex="0" role="button" data-service="pest-control">
+                    <i class="fas fa-bug text-2xl text-red-500 mb-2" aria-hidden="true"></i>
+                    <p class="text-sm font-medium" data-translate="pest-control">Pest Control</p>
                 </div>
-              ))}
+                <div class="service-card bg-white p-4 rounded-lg shadow-md text-center cursor-pointer" 
+                     tabindex="0" role="button" data-service="market-prices">
+                    <i class="fas fa-chart-line text-2xl text-green-500 mb-2" aria-hidden="true"></i>
+                    <p class="text-sm font-medium" data-translate="market-prices">Market Prices</p>
+                </div>
+                <div class="service-card bg-white p-4 rounded-lg shadow-md text-center cursor-pointer" 
+                     tabindex="0" role="button" data-service="training">
+                    <i class="fas fa-graduation-cap text-2xl text-purple-500 mb-2" aria-hidden="true"></i>
+                    <p class="text-sm font-medium" data-translate="training">Training</p>
+                </div>
             </div>
-          </>
-        ) : (
-          <>
-            <h2 className="text-xl sm:text-2xl font-bold mb-4 text-green-800">
-              Cadastre seu serviço
-            </h2>
-            <form
-              className="bg-white rounded-2xl shadow p-6 flex flex-col gap-5 border border-green-100"
-              onSubmit={handleRegister}
-            >
-              <label className="flex flex-col gap-1">
-                <span className="font-semibold">Nome do serviço ou empresa*</span>
-                <input
-                  required
-                  className="rounded-xl p-3 border border-green-300"
-                  type="text"
-                  value={form.nome}
-                  onChange={(e) => setForm({ ...form, nome: e.target.value })}
-                  autoComplete="off"
-                />
-              </label>
-              <label className="flex flex-col gap-1">
-                <span className="font-semibold">Categoria*</span>
-                <select
-                  required
-                  className="rounded-xl p-3 border border-green-300"
-                  value={form.categoria}
-                  onChange={(e) => setForm({ ...form, categoria: e.target.value })}
-                >
-                  {categories.map((cat) => (
-                    <option key={cat.id} value={cat.id}>
-                      {cat.label}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <label className="flex flex-col gap-1">
-                <span className="font-semibold">Descrição do serviço*</span>
-                <textarea
-                  required
-                  className="rounded-xl p-3 border border-green-300"
-                  value={form.descricao}
-                  onChange={(e) => setForm({ ...form, descricao: e.target.value })}
-                  rows={2}
-                  autoComplete="off"
-                />
-              </label>
-              <label className="flex flex-col gap-1">
-                <span className="font-semibold">E-mail de contato*</span>
-                <input
-                  required
-                  className="rounded-xl p-3 border border-green-300"
-                  type="email"
-                  value={form.contato}
-                  onChange={(e) => setForm({ ...form, contato: e.target.value })}
-                  autoComplete="off"
-                />
-              </label>
-              <button
-                type="submit"
-                className="bg-green-700 text-white px-6 py-3 rounded-xl font-bold hover:bg-green-800 transition text-lg"
-              >
-                Cadastrar serviço
-              </button>
-              {formSuccess && (
-                <div className="text-green-700 font-semibold text-center mt-2">
-                  Serviço cadastrado com sucesso!
+        </section>
+    </main>
+
+    <!-- Voice Input Modal -->
+    <div id="voiceModal" class="fixed inset-0 modal-overlay hidden z-50 flex items-center justify-center p-4"
+         role="dialog" aria-labelledby="modal-title" aria-modal="true">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full slide-up">
+            <div class="p-6 text-center">
+                <div class="mb-6">
+                    <div id="microphoneIcon" class="inline-flex items-center justify-center w-20 h-20 bg-blue-500 text-white rounded-full mb-4">
+                        <i class="fas fa-microphone text-3xl" aria-hidden="true"></i>
+                    </div>
+                    <h3 id="modal-title" class="text-xl font-bold text-gray-800 mb-2" data-translate="listening">Listening...</h3>
+                    <p class="text-gray-600" data-translate="tell-me-help">Tell me what you need help with</p>
                 </div>
-              )}
-            </form>
-          </>
-        )}
-      </main>
-      {/* Rodapé fixo para mobile */}
-      <footer className="fixed bottom-0 left-0 w-full bg-green-100 text-green-700 py-3 text-center text-base shadow-inner z-10">
-        © {new Date().getFullYear()} AgroConect | Feito para agricultores brasileiros
-      </footer>
+                
+                <!-- Voice Wave Animation -->
+                <div id="voiceWave" class="flex justify-center items-center mb-6 hidden" aria-hidden="true">
+                    <div class="voice-wave"></div>
+                    <div class="voice-wave"></div>
+                    <div class="voice-wave"></div>
+                    <div class="voice-wave"></div>
+                    <div class="voice-wave"></div>
+                </div>
+                
+                <!-- Transcript Display -->
+                <div id="transcript" class="bg-gray-100 p-4 rounded-lg mb-6 min-h-[60px] text-left hidden"
+                     aria-live="polite" aria-label="Speech transcript">
+                    <p class="text-gray-700 italic" data-translate="speech-appear">Your speech will appear here...</p>
+                </div>
+                
+                <!-- Control Buttons -->
+                <div class="flex space-x-4">
+                    <button id="stopRecording" 
+                            class="flex-1 bg-red-500 hover:bg-red-600 text-white py-3 px-6 rounded-lg font-medium transition-all focus:outline-none focus:ring-2 focus:ring-red-300">
+                        <i class="fas fa-stop mr-2" aria-hidden="true"></i>
+                        <span data-translate="stop">Stop</span>
+                    </button>
+                    <button id="closeModal" 
+                            class="flex-1 bg-gray-500 hover:bg-gray-600 text-white py-3 px-6 rounded-lg font-medium transition-all focus:outline-none focus:ring-2 focus:ring-gray-300">
+                        <i class="fas fa-times mr-2" aria-hidden="true"></i>
+                        <span data-translate="cancel">Cancel</span>
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
-  );
-}
 
-export default App;
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-8 mt-12">
+        <div class="container mx-auto px-4 text-center">
+            <div class="flex items-center justify-center mb-4">
+                <i class="fas fa-seedling text-2xl mr-2" aria-hidden="true"></i>
+                <span class="text-xl font-bold">AgroConect</span>
+            </div>
+            <p class="text-gray-400" data-translate="footer-text">Connecting farmers with the services they need</p>
+        </div>
+    </footer>
+
+    <script>
+        // Translations with additional strings
+        const translations = {
+            en: {
+                'subtitle': 'Your Agricultural Assistant',
+                'main-greeting': 'How can I help?',
+                'main-description': "I'm here to connect you with the right agricultural services and support. Speak to me or browse our services below.",
+                'equipment-rental': 'Equipment Rental',
+                'equipment-rental-desc': 'Find and rent agricultural equipment',
+                'expert-consultation': 'Expert Consultation',
+                'expert-consultation-desc': 'Connect with agricultural experts',
+                'supply-marketplace': 'Supply Marketplace',
+                'supply-marketplace-desc': 'Buy seeds, fertilizers, and tools',
+                'popular-services': 'Popular Services',
+                'weather-forecast': 'Weather Forecast',
+                'pest-control': 'Pest Control',
+                'market-prices': 'Market Prices',
+                'training': 'Training',
+                'listening': 'Listening...', 
+                'tell-me-help': 'Tell me what you need help with',
+                'speech-appear': 'Your speech will appear here...', 
+                'stop': 'Stop',
+                'cancel': 'Cancel',
+                'footer-text': 'Connecting farmers with the services they need',
+                'voice-input-label': 'Click to start voice input',
+                'mic-access-denied': 'Microphone access was denied. Please allow microphone access and try again.',
+                'speech-error': 'Speech recognition error: ',
+                'speech-not-supported': 'Speech recognition is not supported in your browser. Please try using Chrome, Edge, or Safari.',
+                'voice-error': 'Error starting voice recognition. Please try again.',
+                'service-selected': 'You selected: ',
+                'service-navigate': '\n\nThis would normally navigate to the ',
+                'service-section': ' section.'
+            },
+            pt: {
+                'subtitle': 'Seu Assistente Agrícola',
+                'main-greeting': 'Como posso ajudar?',
+                'main-description': 'Estou aqui para conectá-lo com os serviços e suporte agrícolas adequados. Fale comigo ou navegue pelos nossos serviços abaixo.',
+                'equipment-rental': 'Aluguel de Equipamentos',
+                'equipment-rental-desc': 'Encontre e alugue equipamentos agrícolas',
+                'expert-consultation': 'Consultoria Especializada',
+                'expert-consultation-desc': 'Conecte-se com especialistas agrícolas',
+                'supply-marketplace': 'Marketplace de Suprimentos',
+                'supply-marketplace-desc': 'Compre sementes, fertilizantes e ferramentas',
+                'popular-services': 'Serviços Populares',
+                'weather-forecast': 'Previsão do Tempo',
+                'pest-control': 'Controle de Pragas',
+                'market-prices': 'Preços de Mercado',
+                'training': 'Treinamento',
+                'listening': 'Ouvindo...', 
+                'tell-me-help': 'Diga-me como posso ajudá-lo',
+                'speech-appear': 'Sua fala aparecerá aqui...', 
+                'stop': 'Parar',
+                'cancel': 'Cancelar',
+                'footer-text': 'Conectando agricultores com os serviços que precisam',
+                'voice-input-label': 'Clique para iniciar entrada de voz',
+                'mic-access-denied': 'Acesso ao microfone foi negado. Por favor, permita o acesso ao microfone e tente novamente.',
+                'speech-error': 'Erro de reconhecimento de fala: ',
+                'speech-not-supported': 'Reconhecimento de fala não é suportado no seu navegador. Por favor, tente usar Chrome, Edge ou Safari.',
+                'voice-error': 'Erro ao iniciar o reconhecimento de voz. Por favor, tente novamente.',
+                'service-selected': 'Você selecionou: ',
+                'service-navigate': '\n\nIsto normalmente navegaria para a seção ',
+                'service-section': '.'
+            }
+        };
+
+        let currentLang = 'en';
+
+        // Voice recognition functionality
+        let recognition;
+        let isRecording = false;
+
+        // Cache DOM elements for better performance
+        const elements = {
+            voiceButton: null,
+            voiceModal: null,
+            closeModal: null,
+            stopRecordingBtn: null,
+            voiceWave: null,
+            transcript: null,
+            microphoneIcon: null,
+            currentLanguage: null
+        };
+
+        // Check for browser support
+        if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            recognition = new SpeechRecognition();
+            
+            recognition.continuous = true;
+            recognition.interimResults = true;
+            recognition.lang = currentLang === 'pt' ? 'pt-BR' : 'en-US';
+            
+            recognition.onstart = function() {
+                console.log('Speech recognition started');
+                isRecording = true;
+                elements.voiceWave.classList.remove('hidden');
+                elements.transcript.classList.remove('hidden');
+                elements.microphoneIcon.classList.add('recording');
+            };
+            
+            recognition.onresult = function(event) {
+                let transcript = '';
+                for (let i = event.resultIndex; i < event.results.length; i++) {
+                    transcript += event.results[i][0].transcript;
+                }
+                elements.transcript.innerHTML = `<p class="text-gray-700">${transcript}</p>`;
+            };
+            
+            recognition.onerror = function(event) {
+                console.error('Speech recognition error:', event.error);
+                let errorMessage;
+                if (event.error === 'not-allowed') {
+                    errorMessage = translations[currentLang]['mic-access-denied'];
+                } else {
+                    errorMessage = translations[currentLang]['speech-error'] + event.error;
+                }
+                alert(errorMessage);
+                stopRecording();
+            };
+            
+            recognition.onend = function() {
+                console.log('Speech recognition ended');
+                stopRecording();
+            };
+        }
+
+        // Language switching function - FIXED
+        function changeLanguage(lang, clickedElement = null) {
+            // Stop recognition if it's running and language is changing
+            if (recognition && isRecording && currentLang !== lang) {
+                recognition.stop();
+            }
+
+            currentLang = lang;
+            elements.currentLanguage.textContent = lang.toUpperCase();
+            
+            // Update speech recognition language
+            if (recognition) {
+                recognition.lang = lang === 'pt' ? 'pt-BR' : 'en-US';
+            }
+            
+            // Update all translatable elements
+            const translatableElements = document.querySelectorAll('[data-translate]');
+            translatableElements.forEach(element => {
+                const key = element.getAttribute('data-translate');
+                if (translations[lang] && translations[lang][key]) {
+                    element.textContent = translations[lang][key];
+                }
+            });
+
+            // Update language dropdown active state - FIXED
+            document.querySelectorAll('.language-option').forEach(option => {
+                option.classList.remove('active');
+            });
+            
+            // Find and activate the correct option
+            const activeOption = document.querySelector(`[data-lang="${lang}"]`);
+            if (activeOption) {
+                activeOption.classList.add('active');
+            }
+        }
+
+        // Initialize DOM elements and event listeners
+        function initializeApp() {
+            // Cache DOM elements
+            elements.voiceButton = document.getElementById('voiceButton');
+            elements.voiceModal = document.getElementById('voiceModal');
+            elements.closeModal = document.getElementById('closeModal');
+            elements.stopRecordingBtn = document.getElementById('stopRecording');
+            elements.voiceWave = document.getElementById('voiceWave');
+            elements.transcript = document.getElementById('transcript');
+            elements.microphoneIcon = document.getElementById('microphoneIcon');
+            elements.currentLanguage = document.getElementById('currentLanguage');
+
+            // Event listeners
+            elements.voiceButton.addEventListener('click', startVoiceInput);
+            elements.closeModal.addEventListener('click', closeVoiceModal);
+            elements.stopRecordingBtn.addEventListener('click', stopRecording);
+
+            // Language dropdown event listeners - FIXED
+            document.querySelectorAll('.language-option').forEach(option => {
+                option.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const lang = this.getAttribute('data-lang');
+                    changeLanguage(lang, this);
+                });
+            });
+
+            // Close modal when clicking outside
+            elements.voiceModal.addEventListener('click', function(e) {
+                if (e.target === elements.voiceModal) {
+                    closeVoiceModal();
+                }
+            });
+
+            // Escape key to close modal
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && !elements.voiceModal.classList.contains('hidden')) {
+                    closeVoiceModal();
+                }
+            });
+
+            // Service card click handlers with keyboard support
+            document.querySelectorAll('.service-card').forEach(card => {
+                function handleServiceClick() {
+                    const serviceName = card.querySelector('h3, p').textContent;
+                    const message = translations[currentLang]['service-selected'] + serviceName + 
+                                  translations[currentLang]['service-navigate'] + 
+                                  serviceName + translations[currentLang]['service-section'];
+                    alert(message);
+                }
+
+                card.addEventListener('click', handleServiceClick);
+                card.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        handleServiceClick();
+                    }
+                });
+            });
+
+            // Animate elements on page load
+            setTimeout(() => {
+                document.querySelectorAll('.fade-in').forEach(el => {
+                    el.style.opacity = '1';
+                    el.style.transform = 'translateY(0)';
+                });
+            }, 100);
+        }
+
+        function startVoiceInput() {
+            console.log('Starting voice input...');
+            
+            if (!recognition) {
+                alert(translations[currentLang]['speech-not-supported']);
+                return;
+            }
+            
+            // Show modal
+            elements.voiceModal.classList.remove('hidden');
+            
+            // Reset modal state
+            elements.voiceWave.classList.add('hidden');
+            elements.transcript.classList.add('hidden');
+            elements.microphoneIcon.classList.remove('recording');
+            elements.transcript.innerHTML = `<p class="text-gray-700 italic">${translations[currentLang]['speech-appear']}</p>`;
+            
+            // Start recognition
+            try {
+                recognition.start();
+            } catch (error) {
+                console.error('Error starting recognition:', error);
+                alert(translations[currentLang]['voice-error']);
+                closeVoiceModal();
+            }
+        }
+
+        function stopRecording() {
+            console.log('Stopping recording...');
+            if (recognition && isRecording) {
+                recognition.stop();
+            }
+            isRecording = false;
+            if (elements.voiceWave) {
+                elements.voiceWave.classList.add('hidden');
+            }
+            if (elements.microphoneIcon) {
+                elements.microphoneIcon.classList.remove('recording');
+            }
+        }
+
+        function closeVoiceModal() {
+            console.log('Closing voice modal...');
+            stopRecording();
+            elements.voiceModal.classList.add('hidden');
+        }
+
+        // Cleanup function for page unload
+        function cleanup() {
+            if (recognition && isRecording) {
+                recognition.stop();
+            }
+        }
+
+        // Wait for DOM to be fully loaded
+        document.addEventListener('DOMContentLoaded', initializeApp);
+        
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', cleanup);
+    </script>
+</body>
+</html>
+
+
+
