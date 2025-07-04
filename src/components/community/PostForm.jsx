@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { ForumPost } from "@/api/entities";
+import { getForumPosts } from "@/api/entities";
 
 export default function PostForm({ groups, onPostCreated, language = 'pt' }) {
     const [formData, setFormData] = useState({
@@ -74,7 +74,7 @@ export default function PostForm({ groups, onPostCreated, language = 'pt' }) {
             const author_name = "Usuário Anônimo";
             const location = "Brasil";
             
-            await ForumPost.create({ ...formData, author_name, location });
+            await getForumPosts().data.create({ ...formData, author_name, location });
             onPostCreated();
         } catch (error) {
             console.error("Error creating post:", error);

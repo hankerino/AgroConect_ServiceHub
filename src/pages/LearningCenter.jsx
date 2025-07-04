@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { TechResource } from "@/api/entities";
+import { getTechResources } from "@/api/entities";
 import { useLanguage } from "@/components/providers/LanguageProvider";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -27,7 +27,8 @@ export default function LearningCenter() {
 
     const loadResources = async () => {
         try {
-            const data = await TechResource.list('-publication_date');
+            const techResourceResults = await getTechResources();
+            const data = techResourceResults.data;
             setResources(data);
         } catch (error) {
             console.error("Error loading resources:", error);
@@ -257,7 +258,7 @@ export default function LearningCenter() {
                                         {resource.content.substring(0, 200)}...
                                     </p>
                                     
-                                    {resource.tags && (
+                                    {Array.isArray(resource.tags) ? (
                                         <div className="flex flex-wrap gap-1 mb-4">
                                             {resource.tags.slice(0, 3).map((tag, index) => (
                                                 <Badge key={index} variant="secondary" className="text-xs">
@@ -265,6 +266,8 @@ export default function LearningCenter() {
                                                 </Badge>
                                             ))}
                                         </div>
+                                    ) : (
+                                        <span className="text-xs text-gray-500">No tags</span>
                                     )}
                                 </div>
 

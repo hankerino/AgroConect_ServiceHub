@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from "react";
-import { Product } from "@/api/entities";
-import { Expert } from "@/api/entities";
+import { getProducts } from "@/api/entities";
+import { getExperts } from "@/api/entities";
 import { useLanguage } from "@/components/providers/LanguageProvider";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -34,10 +34,13 @@ export default function Marketplace() {
 
     const loadData = async () => {
         try {
-            const [productData, expertData] = await Promise.all([
-                Product.list('-created_date'),
-                Expert.list('-created_date')
-            ]);
+
+            const productResults = await getProducts();
+            const expertResults = await getExperts();
+
+            const productData = productResults.data;
+            const expertData = expertResults.data;
+
             setProducts(productData);
             setExperts(expertData);
             
@@ -379,9 +382,13 @@ export default function Marketplace() {
                                         <div className="space-y-2 mb-4">
                                             <p className="text-sm text-gray-700 line-clamp-3">{expert.bio}</p>
                                             <div className="flex flex-wrap gap-1">
-                                                {expert.specializations.slice(0, 3).map((spec, index) => (
-                                                    <Badge key={index} variant="secondary" className="text-xs">{spec.replace(/_/g, ' ')}</Badge>
-                                                ))}
+                                                {
+                                                    Array.isArray(expert.specializations) ? 
+                                                        expert.specializations.slice(0, 3).map((spec, index) => (
+                                                            <Badge key={index} variant="secondary" className="text-xs">{spec.replace(/_/g, ' ')}</Badge>
+                                                        )) : 
+                                                        <span className="text-xs text-gray-500">No specializations</span>
+                                                }
                                             </div>
                                         </div>
                                         <div className="border-t pt-4 flex gap-2">

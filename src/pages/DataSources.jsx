@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { DataSource } from "@/api/entities";
+import { getDataSources } from "@/api/entities";
 import { useLanguage } from "@/components/providers/LanguageProvider";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -18,7 +18,7 @@ export default function DataSources() {
 
   useEffect(() => {
     async function loadData() {
-      const data = await DataSource.list();
+      const data = await getDataSources().list();
       setSources(data);
       setFilteredSources(data);
       

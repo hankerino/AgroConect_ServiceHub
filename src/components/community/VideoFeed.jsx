@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { VideoPost } from "@/api/entities";
+import { getVideoPosts } from "@/api/entities";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -18,7 +18,7 @@ export default function VideoFeed({ language = 'pt' }) {
 
     const loadVideos = async () => {
         try {
-            const videoData = await VideoPost.list('-created_date', 20);
+            const videoData = await getVideoPosts().data.slice(0, 20);
             setVideos(videoData);
         } catch (error) {
             console.error("Error loading videos:", error);

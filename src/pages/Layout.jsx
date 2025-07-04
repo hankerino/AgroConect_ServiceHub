@@ -1,10 +1,8 @@
-
-
 import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { User } from "@/api/entities";
 import { useLanguage, LanguageProvider } from "@/components/providers/LanguageProvider";
+import { signInWithGoogle, signOut } from "@/utils/auth";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -28,7 +26,9 @@ import {
   Store,
   BookOpen,
   User as UserIcon,
-  Globe
+  Globe,
+  LogOut,
+  LogIn
 } from "lucide-react";
 
 const navigationItems = [
@@ -85,12 +85,32 @@ function LayoutContent({ children, currentPageName }) {
     pt: {
       title: "AgroConect",
       subtitle: "ServiceHub",
-      profile: "Perfil"
+      profile: "Perfil",
+      login: "Entrar",
+      logout: "Sair"
     },
     en: {
       title: "AgroConect",
       subtitle: "ServiceHub",
-      profile: "Profile"
+      profile: "Profile",
+      login: "Login",
+      logout: "Logout"
+    }
+  };
+
+  const handleLogin = async () => {
+    try {
+      await signInWithGoogle();
+    } catch (error) {
+      console.error('Login failed:', error);
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await signOut();
+    } catch (error) {
+      console.error('Logout failed:', error);
     }
   };
 
@@ -156,18 +176,32 @@ function LayoutContent({ children, currentPageName }) {
                 {language === 'pt' ? 'EN' : 'PT'}
               </Button>
 
-              {/* Profile */}
-              {user && (
-                <Link to={createPageUrl("Profile")}>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="text-white hover:bg-white hover:bg-opacity-20"
-                  >
-                    <UserIcon className="w-4 h-4 mr-2" />
-                    {text[language].profile}
-                  </Button>
-                </Link>
+              {/* Auth Buttons */}
+              {user ? (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="sm">
+                      <UserIcon className="w-4 h-4 mr-2" />
+                      {user.user_metadata?.full_name || user.email}
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent>
+                    <DropdownMenuItem onClick={() => navigate('/profile')}>
+                      <UserIcon className="w-4 h-4 mr-2" />
+                      Profile
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={signOut}>
+                      <LogOut className="w-4 h-4 mr-2" />
+                      Logout
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              ) : (
+                <Button onClick={() => signInWithGoogle()}>
+                  <LogIn className="w-4 h-4 mr-2" />
+                  Login
+                </Button>
               )}
 
               {/* Mobile Menu Toggle (now using Sheet) */}

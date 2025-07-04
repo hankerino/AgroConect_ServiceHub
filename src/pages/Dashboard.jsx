@@ -1,7 +1,6 @@
-
 import React, { useState, useEffect } from "react";
-import { Consultation } from "@/api/entities";
-import { ForumPost } from "@/api/entities";
+import { getConsultations } from "@/api/entities";
+import { getForumPosts } from "@/api/entities";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -44,7 +43,8 @@ export default function Dashboard() {
 
   const loadConsultations = async () => {
     try {
-      const consultationData = await Consultation.list('-scheduled_date', 3);
+      const consultationResults = await getConsultations();
+      const consultationData = consultationResults.data.slice(0, 3);
       setConsultations(consultationData);
     } catch (error) {
       console.error("Error loading consultations:", error);
@@ -53,7 +53,8 @@ export default function Dashboard() {
 
   const loadRecentPosts = async () => {
     try {
-      const posts = await ForumPost.list('-created_date', 3);
+      const postResults = await getForumPosts();
+      const posts = postResults.data.slice(0, 3);
       setRecentPosts(posts);
     } catch (error) {
       console.error("Error loading forum posts:", error);
@@ -113,7 +114,7 @@ export default function Dashboard() {
     },
     en: {
       welcome: "Welcome to AgroConect",
-      greeting: user ? `Hello, ${user.full_name || 'User'}!` : "Hello, User!",
+      greeting: user ? `Hello, ${user.user_metadata?.full_name || user.email || 'User'}!` : "Hello, User!",
       subtitle: "Your connected services platform",
       description: "I'm here to connect you with the right services and support. Speak to me or browse our services below.",
       services: "Available Services",

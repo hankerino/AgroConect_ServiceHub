@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { CommunityGroup } from "@/api/entities";
+import { getCommunityGroups } from "@/api/entities";
 
 export default function CreateGroupForm({ onGroupCreated, language = 'pt' }) {
     const [formData, setFormData] = useState({
@@ -63,7 +63,7 @@ export default function CreateGroupForm({ onGroupCreated, language = 'pt' }) {
         try {
             // This is a placeholder. In a real app, you'd get the current user's name.
             const creator_name = "Usuário Anônimo";
-            await CommunityGroup.create({ ...formData, creator_name });
+            await getCommunityGroups().data.create({ ...formData, creator_name });
             onGroupCreated();
         } catch (error) {
             console.error("Error creating group:", error);

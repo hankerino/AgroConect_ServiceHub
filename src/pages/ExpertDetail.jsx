@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Expert } from "@/api/entities";
+import { getExperts } from "@/api/entities";
 import { useLanguage } from "@/components/providers/LanguageProvider";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -24,7 +24,7 @@ export default function ExpertDetail() {
     const loadExpert = async (id) => {
         setLoading(true);
         try {
-            const expertData = await Expert.get(id);
+            const expertData = await getExperts().data.find(expert => expert.id === id);
             setExpert(expertData);
         } catch (error) {
             console.error("Error loading expert details:", error);

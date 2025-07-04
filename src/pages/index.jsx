@@ -28,6 +28,9 @@ import checkout from "./checkout";
 
 import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
 
+import ProtectedRoute from '../../ProtectedRoute.jsx'
+import Login from "./Login.jsx";
+
 const PAGES = {
     
     Dashboard: Dashboard,
@@ -75,44 +78,36 @@ function _getCurrentPage(url) {
 function PagesContent() {
     const location = useLocation();
     const currentPage = _getCurrentPage(location.pathname);
-    
-    return (
+
+    const isAuthPage = location.pathname === "/login";
+
+    return isAuthPage ? (
+        <Routes>
+            <Route path="/login" element={<Login />} />
+        </Routes>
+    ) : (
         <Layout currentPageName={currentPage}>
-            <Routes>            
-                
-                    <Route path="/" element={<Dashboard />} />
-                
-                
-                <Route path="/Dashboard" element={<Dashboard />} />
-                
-                <Route path="/Profile" element={<Profile />} />
-                
-                <Route path="/DataSources" element={<DataSources />} />
-                
-                <Route path="/MarketPrices" element={<MarketPrices />} />
-                
-                <Route path="/Weather" element={<Weather />} />
-                
-                <Route path="/LearningCenter" element={<LearningCenter />} />
-                
-                <Route path="/Marketplace" element={<Marketplace />} />
-                
-                <Route path="/ProductDetail" element={<ProductDetail />} />
-                
-                <Route path="/ExpertDetail" element={<ExpertDetail />} />
-                
-                <Route path="/Community" element={<Community />} />
-                
-                <Route path="/Consultations" element={<Consultations />} />
-                
-                <Route path="/Checkout" element={<Checkout />} />
-                
-                <Route path="/checkout" element={<checkout />} />
-                
+            <Routes>
+                <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+                <Route path="/Dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+                <Route path="/Profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+                <Route path="/DataSources" element={<ProtectedRoute><DataSources /></ProtectedRoute>} />
+                <Route path="/MarketPrices" element={<ProtectedRoute><MarketPrices /></ProtectedRoute>} />
+                <Route path="/Weather" element={<ProtectedRoute><Weather /></ProtectedRoute>} />
+                <Route path="/LearningCenter" element={<ProtectedRoute><LearningCenter /></ProtectedRoute>} />
+                <Route path="/Marketplace" element={<ProtectedRoute><Marketplace /></ProtectedRoute>} />
+                <Route path="/ProductDetail" element={<ProtectedRoute><ProductDetail /></ProtectedRoute>} />
+                <Route path="/ExpertDetail" element={<ProtectedRoute><ExpertDetail /></ProtectedRoute>} />
+                <Route path="/Community" element={<ProtectedRoute><Community /></ProtectedRoute>} />
+                <Route path="/Consultations" element={<ProtectedRoute><Consultations /></ProtectedRoute>} />
+                <Route path="/Checkout" element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
+                <Route path="/checkout" element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
             </Routes>
         </Layout>
+
     );
 }
+
 
 export default function Pages() {
     return (

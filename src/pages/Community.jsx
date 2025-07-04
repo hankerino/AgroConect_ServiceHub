@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { ForumPost } from "@/api/entities";
-import { CommunityProfile } from "@/api/entities";
-import { VideoPost } from "@/api/entities";
-import { CommunityGroup } from "@/api/entities";
+import { getForumPosts } from "@/api/entities";
+import { getCommunityProfiles } from "@/api/entities";
+import { getVideoPosts } from "@/api/entities";
+import { getCommunityGroups } from "@/api/entities";
 import { useLanguage } from "@/components/providers/LanguageProvider";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -49,12 +49,19 @@ export default function Community() {
 
     const loadData = async () => {
         try {
-            const [postData, videoData, profileData, groupData] = await Promise.all([
-                ForumPost.list('-created_date'),
-                VideoPost.list('-created_date', 10),
-                CommunityProfile.list('-created_date', 20),
-                CommunityGroup.list('-created_date')
+
+            const [postResults, videoResults, profileResults, groupResults] = await Promise.all([
+                getForumPosts(),
+                getVideoPosts(),
+                getCommunityProfiles(),
+                getCommunityGroups()
             ]);
+
+            const postData = postResults.data;
+            const videoData = videoResults.data.slice(0, 20)
+            const profileData = profileResults.data.slice(0, 20)
+            const groupData = groupResults.data
+
             setPosts(postData);
             setVideos(videoData);
             setProfiles(profileData);
@@ -319,11 +326,14 @@ export default function Community() {
                                                             {post.group_name}
                                                         </Badge>
                                                     )}
-                                                    {post.tags && post.tags.slice(0, 2).map((tag, index) => (
-                                                        <Badge key={index} variant="outline" className="text-xs">
-                                                            {tag}
-                                                        </Badge>
-                                                    ))}
+                                                    {Array.isArray(post.tags) ? 
+                                                        post.tags.slice(0, 3).map((tag, index) => (
+                                                            <Badge key={index} variant="secondary" className="text-xs">
+                                                                {tag}
+                                                            </Badge>
+                                                        )) : 
+                                                        <span className="text-xs text-gray-500">No specialties</span>
+                                                    }
                                                 </div>
                                                 <CardTitle className="text-lg">{post.title}</CardTitle>
                                             </div>
@@ -492,11 +502,14 @@ export default function Community() {
                                             <p className="text-sm text-gray-700 mb-4 line-clamp-2">{profile.bio}</p>
                                         )}
                                         <div className="flex flex-wrap gap-1 mb-4">
-                                            {profile.specialties && profile.specialties.slice(0, 3).map((specialty, index) => (
-                                                <Badge key={index} variant="secondary" className="text-xs">
-                                                    {specialty}
-                                                </Badge>
-                                            ))}
+                                            {Array.isArray(profile.specialties) ? 
+                                                profile.specialties.slice(0, 3).map((specialty, index) => (
+                                                    <Badge key={index} variant="secondary" className="text-xs">
+                                                        {specialty}
+                                                    </Badge>
+                                                )) : 
+                                                <span className="text-xs text-gray-500">No specialties</span>
+                                            }
                                         </div>
                                         <div className="flex gap-2">
                                             <Button variant="outline" size="sm" className="flex-1">

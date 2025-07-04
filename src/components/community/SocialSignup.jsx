@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { MessageCircle, Instagram, Facebook, Phone, QrCode, Camera } from "lucide-react";
-import { CommunityProfile } from "@/api/entities";
+import { getCommunityProfiles } from "@/api/entities";
 
 export default function SocialSignup({ onSignupComplete, language = 'pt' }) {
     const [formData, setFormData] = useState({
@@ -147,7 +147,7 @@ export default function SocialSignup({ onSignupComplete, language = 'pt' }) {
                 verification_status: 'pending'
             };
             
-            const newProfile = await CommunityProfile.create(profileData);
+            const newProfile = await getCommunityProfiles().data.create(profileData);
             onSignupComplete(newProfile);
         } catch (error) {
             console.error("Error creating profile:", error);

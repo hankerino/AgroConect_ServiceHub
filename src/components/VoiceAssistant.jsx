@@ -4,7 +4,51 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Mic, MicOff, Volume2, Loader2, X } from "lucide-react";
-import { InvokeLLM } from "@/api/integrations";
+import { useNavigate } from 'react-router-dom';
+
+
+// Mock LLM function - replace with your actual InvokeLLM
+const InvokeLLM = async ({ prompt }) => {
+  // This would be your actual LLM call
+  const apiKey = import.meta.env.VITE_OPENAI_API_KEY; // Make sure this is securely set in your environment
+
+  const url = 'https://api.openai.com/v1/chat/completions';
+
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${apiKey}`,
+    },
+    body: JSON.stringify({
+      model: 'gpt-4o-mini', // or 'gpt-3.5-turbo'
+      messages: [
+        {
+          role: 'system',
+          content: 'You are a helpful assistant.',
+        },
+        {
+          role: 'user',
+          content: prompt,
+        },
+      ],
+      temperature: 0.7,
+    }),
+  });
+
+  if (!response.ok) {
+    const error = await response.text();
+    throw new Error(`OpenAI API error: ${error}`);
+  }
+
+  const data = await response.json();
+  const message = data.choices?.[0]?.message?.content;
+
+  console.log(message)
+
+  return message;
+};
+
 
 export default function VoiceAssistant({ language = 'pt', onResponse }) {
   const [isListening, setIsListening] = useState(false);
@@ -14,7 +58,12 @@ export default function VoiceAssistant({ language = 'pt', onResponse }) {
   const [isSupported, setIsSupported] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [interimTranscript, setInterimTranscript] = useState('');
+
+  const [classifiedQuery, setClassifiedQuery] = useState(null);
+  const [isClassifying, setIsClassifying] = useState(false);
+
   const recognitionRef = useRef(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
@@ -45,7 +94,7 @@ export default function VoiceAssistant({ language = 'pt', onResponse }) {
         
         if (finalTranscript) {
           setTranscript(finalTranscript);
-          processVoiceInput(finalTranscript);
+          classifyAndProcessQuery(finalTranscript);
         }
         setInterimTranscript(interim);
       };
@@ -75,6 +124,201 @@ export default function VoiceAssistant({ language = 'pt', onResponse }) {
     }
   }, [language]);
 
+
+
+  const classifyQuery = async (input) => {
+    const classificationPrompt = language === 'pt' ? `
+Você é um classificador de consultas para um sistema agrícola. Analise a entrada do usuário e retorne APENAS um JSON válido no seguinte formato:
+
+{
+  "queryType": "prices|weather|expert|discussion|product_service|learning|general",
+  "parameters": {
+    // Para prices: "crop", "location", "trend" (trend pode ser "Rising", "Falling" ou "Stable")
+    // Para weather: "location"
+    // Para expert: "name", "type"
+    // Para discussion: "searchQuery", "categories"
+    // Para product_service: "searchQuery", "categories", "locations"
+    // Para learning: "searchQuery", "types", "difficulties", "categories"
+  },
+  "confidence": 0.0-1.0
+}
+
+Tipos de consulta:
+- prices: Preços de commodities, culturas, insumos
+- weather: Clima, previsão do tempo
+- expert: Busca por especialistas, técnicos
+- discussion: Fóruns, discussões, perguntas
+- product_service: Produtos, serviços, equipamentos
+- learning: Cursos, treinamentos, aprendizado
+- general: Consultas gerais de assistência agrícola
+
+Entrada do usuário: "${input}"
+
+Retorne APENAS o JSON, sem explicações adicionais.` : `
+You are a query classifier for an agricultural system. Analyze the user input and return ONLY a valid JSON in the following format:
+
+{
+  "queryType": "prices|weather|expert|discussion|product_service|learning|general",
+  "parameters": {
+    // For prices: "crop", "location", "trend" (trend can be "Rising", "Falling", or "Stable")
+    // For weather: "location"
+    // For expert: "name", "type"
+    // For discussion: "searchQuery", "categories"
+    // For product_service: "searchQuery", "categories", "locations"
+    // For learning: "searchQuery", "types", "difficulties", "categories"
+  },
+  "confidence": 0.0-1.0
+}
+
+Query types:
+- prices: Commodity prices, crop prices, input costs
+- weather: Weather forecast, climate conditions
+- expert: Search for specialists, technicians
+- discussion: Forums, discussions, questions
+- product_service: Products, services, equipment
+- learning: Courses, training, education
+- general: General agricultural assistance queries
+
+User input: "${input}"
+
+Return ONLY the JSON, no additional explanations.`;
+
+
+    try {
+      const result = await InvokeLLM({ prompt: classificationPrompt });
+      
+      // Try to parse the JSON response
+      let classification;
+      try {
+        // Remove any markdown formatting or extra text
+        const jsonMatch = result.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          classification = JSON.parse(jsonMatch[0]);
+        } else {
+          throw new Error('No JSON found in response');
+        }
+      } catch (parseError) {
+        console.error('Error parsing classification JSON:', parseError);
+        // Fallback to general query
+        classification = {
+          queryType: 'general',
+          parameters: {},
+          confidence: 0.5
+        };
+      }
+      
+      return classification;
+    } catch (error) {
+      console.error('Error classifying query:', error);
+      return {
+        queryType: 'general',
+        parameters: {},
+        confidence: 0.5
+      };
+    }
+  };
+
+  const classifyAndProcessQuery = async (input) => {
+    setIsClassifying(true);
+    setIsProcessing(true);
+    
+    try {
+      // Step 1: Classify the query
+      const classification = await classifyQuery(input);
+      setClassifiedQuery(classification);
+      
+      // Step 2: Route to appropriate handler
+      await routeQuery(classification, input);
+      
+    } catch (error) {
+      console.error('Error processing query:', error);
+      const errorMsg = language === 'pt' ? 
+        'Desculpe, ocorreu um erro ao processar sua pergunta. Por favor, tente novamente.' :
+        'Sorry, there was an error processing your question. Please try again.';
+      setResponse(errorMsg);
+    }
+    
+    setIsClassifying(false);
+    setIsProcessing(false);
+  };
+
+  const routeQuery = async (classification, originalInput) => {
+    const { queryType, parameters } = classification;
+    const searchParams = new URLSearchParams(parameters).toString();
+    
+    switch (queryType) {
+      case 'prices':
+        navigate(`/marketprices?${searchParams}`);
+        break;
+        
+      case 'weather':
+        navigate(`/weather?${searchParams}`);
+        break;
+        
+      case 'expert':
+        navigate(`/consultations?${searchParams}`);
+        break;
+        
+      case 'discussion':
+        navigate(`/community?${searchParams}`);
+        break;
+        
+      case 'product_service':
+        navigate(`/marketplace?${searchParams}`);
+        break;
+        
+      case 'learning':
+        navigate(`/learningcenter?${searchParams}`);
+        break;
+        
+      default:
+        // Handle as general agricultural query
+        await processGeneralQuery(originalInput);
+        break;
+    }
+  };
+
+  const processGeneralQuery = async (input) => {
+    // Your existing general query processing logic
+    let systemPrompt = '';
+    
+    if (language === 'pt') {
+      systemPrompt = `Você é um assistente agrícola especializado para agricultores brasileiros. Responda de forma prática e específica para a realidade do produtor rural brasileiro.`;
+    } else {
+      systemPrompt = `You are an agricultural assistant specialized for Brazilian farmers. Provide practical advice specific to Brazilian rural producers.`;
+    }
+    
+    const userPrompt = `${systemPrompt}\n\nPergunta do agricultor: ${input}`;
+    
+    try {
+      const result = await InvokeLLM({
+        prompt: userPrompt,
+        add_context_from_internet: true
+      });
+      
+      setResponse(result);
+      if (onResponse) {
+        onResponse({ question: input, answer: result });
+      }
+      
+      // Text-to-speech
+      if ('speechSynthesis' in window) {
+        const utterance = new SpeechSynthesisUtterance(result);
+        utterance.lang = language === 'pt' ? 'pt-BR' : 'en-US';
+        utterance.rate = 0.9;
+        speechSynthesis.speak(utterance);
+      }
+    } catch (error) {
+      console.error('Error processing general query:', error);
+      const errorMsg = language === 'pt' ? 
+        'Desculpe, ocorreu um erro ao processar sua pergunta. Por favor, tente novamente.' :
+        'Sorry, there was an error processing your question. Please try again.';
+      setResponse(errorMsg);
+    }
+  };
+
+
+
   const startListening = () => {
     if (recognitionRef.current && !isListening) {
       setShowModal(true);
@@ -100,97 +344,105 @@ export default function VoiceAssistant({ language = 'pt', onResponse }) {
     stopListening();
     setShowModal(false);
     setTranscript('');
-    setResponse('');
+    // setResponse('');
     setInterimTranscript('');
   };
 
-  const processVoiceInput = async (input) => {
-    setIsProcessing(true);
-    try {
-      let systemPrompt = '';
-      
-      if (language === 'pt') {
-        systemPrompt = `Você é um assistente agrícola especializado para agricultores brasileiros. Você tem conhecimento profundo sobre:
-
-AGRICULTURA BRASILEIRA:
-- Cultivos típicos do Brasil (soja, milho, café, cana-de-açúcar, algodão, feijão)
-- Biomas e regiões agrícolas (Cerrado, Mata Atlântica, Caatinga, Pampa)
-- Problemas específicos como seca histórica, volatilidade de fertilizantes
-- Cooperativas e extensão rural (EMATER, EMBRAPA, SENAR)
-
-INSUMOS E CUSTOS:
-- Preços de fertilizantes (ureia, potássio, NPK)
-- Alternativas orgânicas (esterco bovino, compostagem)
-- Compras coletivas e logística de insumos
-
-TECNOLOGIA AGRÍCOLA:
-- GPS e agricultura de precisão
-- Drones para mapeamento e pulverização
-- Sensoriamento remoto e NDVI
-- Regulamentações ANAC para drones
-
-EXTENSÃO TÉCNICA:
-- Assistência técnica gratuita e paga
-- Programas governamentais de financiamento
-- Capacitação em tecnologias
-
-Responda sempre em português brasileiro, de forma prática e específica para a realidade do produtor rural brasileiro. Use termos técnicos apropriados mas explique de forma clara.`;
-      } else {
-        systemPrompt = `You are an agricultural assistant specialized for Brazilian farmers operating in English. You have deep knowledge about:
-
-BRAZILIAN AGRICULTURE:
-- Typical Brazilian crops (soy, corn, coffee, sugarcane, cotton, beans)
-- Biomes and agricultural regions (Cerrado, Atlantic Forest, Caatinga, Pampa)  
-- Specific challenges like historical droughts, fertilizer volatility
-- Cooperatives and rural extension (EMATER, EMBRAPA, SENAR)
-
-INPUTS AND COSTS:
-- Fertilizer prices (urea, potassium, NPK)
-- Organic alternatives (cattle manure, composting)
-- Collective purchasing and input logistics
-
-AGRICULTURAL TECHNOLOGY:
-- GPS and precision agriculture
-- Drones for mapping and spraying
-- Remote sensing and NDVI
-- ANAC regulations for drones
-
-TECHNICAL EXTENSION:
-- Free and paid technical assistance
-- Government financing programs
-- Technology training
-
-Always respond in clear English with practical advice specific to Brazilian rural producers. Use appropriate technical terms but explain clearly.`;
-      }
-      
-      const userPrompt = `${systemPrompt}\n\nPergunta do agricultor: ${input}`;
-      
-      const result = await InvokeLLM({
-        prompt: userPrompt,
-        add_context_from_internet: true
-      });
-      
-      setResponse(result);
-      if (onResponse) {
-        onResponse({ question: input, answer: result });
-      }
-      
-      // Text-to-speech
-      if ('speechSynthesis' in window) {
-        const utterance = new SpeechSynthesisUtterance(result);
-        utterance.lang = language === 'pt' ? 'pt-BR' : 'en-US';
-        utterance.rate = 0.9;
-        speechSynthesis.speak(utterance);
-      }
-    } catch (error) {
-      console.error('Error processing voice input:', error);
-      const errorMsg = language === 'pt' ? 
-        'Desculpe, ocorreu um erro ao processar sua pergunta. Por favor, tente novamente.' :
-        'Sorry, there was an error processing your question. Please try again.';
-      setResponse(errorMsg);
+  const handleModalClose = (open) => {
+    if (!open) {
+      // Modal is being closed - call your function here
+      closeModal();
     }
-    setIsProcessing(false);
+    setShowModal(open);
   };
+
+//   const processVoiceInput = async (input) => {
+//     setIsProcessing(true);
+//     try {
+//       let systemPrompt = '';
+      
+//       if (language === 'pt') {
+//         systemPrompt = `Você é um assistente agrícola especializado para agricultores brasileiros. Você tem conhecimento profundo sobre:
+
+// AGRICULTURA BRASILEIRA:
+// - Cultivos típicos do Brasil (soja, milho, café, cana-de-açúcar, algodão, feijão)
+// - Biomas e regiões agrícolas (Cerrado, Mata Atlântica, Caatinga, Pampa)
+// - Problemas específicos como seca histórica, volatilidade de fertilizantes
+// - Cooperativas e extensão rural (EMATER, EMBRAPA, SENAR)
+
+// INSUMOS E CUSTOS:
+// - Preços de fertilizantes (ureia, potássio, NPK)
+// - Alternativas orgânicas (esterco bovino, compostagem)
+// - Compras coletivas e logística de insumos
+
+// TECNOLOGIA AGRÍCOLA:
+// - GPS e agricultura de precisão
+// - Drones para mapeamento e pulverização
+// - Sensoriamento remoto e NDVI
+// - Regulamentações ANAC para drones
+
+// EXTENSÃO TÉCNICA:
+// - Assistência técnica gratuita e paga
+// - Programas governamentais de financiamento
+// - Capacitação em tecnologias
+
+// Responda sempre em português brasileiro, de forma prática e específica para a realidade do produtor rural brasileiro. Use termos técnicos apropriados mas explique de forma clara.`;
+//       } else {
+//         systemPrompt = `You are an agricultural assistant specialized for Brazilian farmers operating in English. You have deep knowledge about:
+
+// BRAZILIAN AGRICULTURE:
+// - Typical Brazilian crops (soy, corn, coffee, sugarcane, cotton, beans)
+// - Biomes and agricultural regions (Cerrado, Atlantic Forest, Caatinga, Pampa)  
+// - Specific challenges like historical droughts, fertilizer volatility
+// - Cooperatives and rural extension (EMATER, EMBRAPA, SENAR)
+
+// INPUTS AND COSTS:
+// - Fertilizer prices (urea, potassium, NPK)
+// - Organic alternatives (cattle manure, composting)
+// - Collective purchasing and input logistics
+
+// AGRICULTURAL TECHNOLOGY:
+// - GPS and precision agriculture
+// - Drones for mapping and spraying
+// - Remote sensing and NDVI
+// - ANAC regulations for drones
+
+// TECHNICAL EXTENSION:
+// - Free and paid technical assistance
+// - Government financing programs
+// - Technology training
+
+// Always respond in clear English with practical advice specific to Brazilian rural producers. Use appropriate technical terms but explain clearly.`;
+//       }
+      
+//       const userPrompt = `${systemPrompt}\n\nPergunta do agricultor: ${input}`;
+      
+//       const result = await InvokeLLM({
+//         prompt: userPrompt,
+//         add_context_from_internet: true
+//       });
+      
+//       setResponse(result);
+//       if (onResponse) {
+//         onResponse({ question: input, answer: result });
+//       }
+      
+//       // Text-to-speech
+//       if ('speechSynthesis' in window) {
+//         const utterance = new SpeechSynthesisUtterance(result);
+//         utterance.lang = language === 'pt' ? 'pt-BR' : 'en-US';
+//         utterance.rate = 0.9;
+//         speechSynthesis.speak(utterance);
+//       }
+//     } catch (error) {
+//       console.error('Error processing voice input:', error);
+//       const errorMsg = language === 'pt' ? 
+//         'Desculpe, ocorreu um erro ao processar sua pergunta. Por favor, tente novamente.' :
+//         'Sorry, there was an error processing your question. Please try again.';
+//       setResponse(errorMsg);
+//     }
+//     setIsProcessing(false);
+//   };
 
   const text = {
     pt: {
@@ -343,7 +595,7 @@ Always respond in clear English with practical advice specific to Brazilian rura
                       key={index} 
                       variant="outline" 
                       className="text-xs cursor-pointer hover:bg-green-50"
-                      onClick={() => processVoiceInput(question)}
+                      onClick={() => classifyAndProcessQuery(question)}
                     >
                       {question}
                     </Badge>
@@ -383,7 +635,7 @@ Always respond in clear English with practical advice specific to Brazilian rura
       </div>
 
       {/* Voice Input Modal */}
-      <Dialog open={showModal} onOpenChange={setShowModal}>
+      <Dialog open={showModal} onOpenChange={handleModalClose} >
         <DialogContent className="sm:max-w-md">
           <DialogHeader className="text-center">
             <div className="flex justify-center mb-4">

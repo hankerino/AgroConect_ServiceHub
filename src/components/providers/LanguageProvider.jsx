@@ -1,5 +1,5 @@
 import React, { createContext, useState, useContext, useEffect, useCallback } from 'react';
-import { User } from '@/api/entities';
+import { supabase } from '@/api/supabaseClient';
 
 const LanguageContext = createContext(null);
 
@@ -22,9 +22,11 @@ export const LanguageProvider = ({ children }) => {
     const initialLang = browserLang === 'en' ? 'en' : 'pt';
     
     try {
-      const userData = await User.me();
+      const { data: { user: userData }, error } = await supabase.auth.getUser();
+      if (error) throw error;
+      
       setUser(userData);
-      setLanguage(userData.preferred_language || initialLang);
+      setLanguage(userData?.user_metadata?.preferred_language || initialLang);
     } catch (error) {
       setUser(null);
       setLanguage(initialLang);
@@ -36,7 +38,19 @@ export const LanguageProvider = ({ children }) => {
   
   useEffect(() => {
     loadUserAndLanguage();
-  }, [loadUserAndLanguage]);
+    
+    // Listen for auth state changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        setUser(session?.user || null);
+        if (session?.user) {
+          setLanguage(session.user.user_metadata?.preferred_language || language);
+        }
+      }
+    );
+
+    return () => subscription.unsubscribe();
+  }, [loadUserAndLanguage, language]);
   
   const switchLanguage = async (newLang) => {
     if (!['en', 'pt'].includes(newLang)) return;
@@ -44,9 +58,16 @@ export const LanguageProvider = ({ children }) => {
     setLanguage(newLang);
     if (user) {
       try {
-        await User.updateMyUserData({ preferred_language: newLang });
+        const { error } = await supabase.auth.updateUser({
+          data: { preferred_language: newLang }
+        });
+        if (error) throw error;
+        
         // Optimistically update user in context
-        setUser(prevUser => ({...prevUser, preferred_language: newLang}));
+        setUser(prevUser => ({
+          ...prevUser, 
+          user_metadata: { ...prevUser.user_metadata, preferred_language: newLang }
+        }));
       } catch (error) {
         console.error("Failed to save language preference:", error);
         // Revert on error if needed

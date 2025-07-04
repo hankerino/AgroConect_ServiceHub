@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Product } from "@/api/entities";
+import { getProducts } from "@/api/entities";
 import { useLanguage } from "@/components/providers/LanguageProvider";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -24,7 +24,7 @@ export default function ProductDetail() {
     const loadProduct = async (id) => {
         setLoading(true);
         try {
-            const productData = await Product.get(id);
+            const productData = await getProducts().data.find(product => product.id === id);
             setProduct(productData);
         } catch (error) {
             console.error("Error loading product details:", error);

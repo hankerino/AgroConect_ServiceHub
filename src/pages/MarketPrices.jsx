@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { MarketPrice } from "@/api/entities";
+import { getMarketPrices } from "@/api/entities";
 import { useLanguage } from "@/components/providers/LanguageProvider";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -7,14 +7,27 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { TrendingUp, TrendingDown, Minus, Search } from "lucide-react";
+import { useSearchParams } from "react-router-dom";
 
 export default function MarketPrices() {
+
+  const [searchParams] = useSearchParams();
+
+  const normalize = (value, fallback = "all") => {
+    return value === null || value === "null" ? fallback : value;
+  };
+  
+  const initialSearchTerm = normalize(searchParams.get("crop"), "");
+  const initialLocation = normalize(searchParams.get("location"), "all");
+  const initialTrend = normalize(searchParams.get("trend"), "all");
+  
+
   const { language } = useLanguage();
   const [prices, setPrices] = useState([]);
   const [filteredPrices, setFilteredPrices] = useState([]);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedLocation, setSelectedLocation] = useState("all");
-  const [selectedTrend, setSelectedTrend] = useState("all");
+  const [searchTerm, setSearchTerm] = useState(initialSearchTerm);
+  const [selectedLocation, setSelectedLocation] = useState(initialLocation);
+  const [selectedTrend, setSelectedTrend] = useState(initialTrend);
   const [locations, setLocations] = useState([]);
 
   useEffect(() => {
@@ -43,7 +56,8 @@ export default function MarketPrices() {
 
   const loadPrices = async () => {
     try {
-      const priceData = await MarketPrice.list('-date');
+      const priceResults = await getMarketPrices();
+      const priceData = priceResults.data;
       setPrices(priceData);
       setFilteredPrices(priceData);
       

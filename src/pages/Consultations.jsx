@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from "react";
-import { Consultation } from "@/api/entities";
+import { getConsultations } from "@/api/entities";
 import { useLanguage } from "@/components/providers/LanguageProvider";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -12,13 +12,25 @@ import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogTitle } from 
 import { Label } from "@/components/ui/label";
 import { Search, Calendar, Clock, Video, Phone, Plus } from "lucide-react";
 import { createPageUrl } from "@/utils";
+import { useSearchParams } from "react-router-dom";
 
 export default function Consultations() {
+
+    const [searchParams] = useSearchParams();
+
+    const normalize = (value, fallback = "all") => {
+        return value === null || value === "null" ? fallback : value;
+    };
+
+    const initialSearchTerm = normalize(searchParams.get("name"), "");
+    const initialSelectedType = normalize(searchParams.get("type"), "all");
+    // const initialSelectedStatus = normalize(searchParams.get("status"), "all");
+
     const { language } = useLanguage();
     const [consultations, setConsultations] = useState([]);
     const [filteredConsultations, setFilteredConsultations] = useState([]);
-    const [searchTerm, setSearchTerm] = useState("");
-    const [selectedType, setSelectedType] = useState("all");
+    const [searchTerm, setSearchTerm] = useState(initialSearchTerm);
+    const [selectedType, setSelectedType] = useState(initialSelectedType);
     const [selectedStatus, setSelectedStatus] = useState("all");
     const [showBookingDialog, setShowBookingDialog] = useState(false);
     const [bookingForm, setBookingForm] = useState({
@@ -40,7 +52,8 @@ export default function Consultations() {
 
     const loadConsultations = async () => {
         try {
-            const data = await Consultation.list('-scheduled_date');
+            const consultationResults = await getConsultations();
+            const data = consultationResults.data;
             setConsultations(data);
         } catch (error) {
             console.error("Error loading consultations:", error);
@@ -76,7 +89,7 @@ export default function Consultations() {
                 meeting_link: `https://meet.agroconect.com/${Date.now()}`
             };
             
-            const newConsultation = await Consultation.create(consultationData);
+            const newConsultation = await getConsultations().data.create(consultationData);
             setShowBookingDialog(false);
             setBookingForm({
                 expert_name: '',

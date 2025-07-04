@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { WeatherForecast } from "@/api/entities";
+import { getWeatherForecasts } from "@/api/entities";
 import { useLanguage } from "@/components/providers/LanguageProvider";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -17,13 +17,23 @@ import {
 } from "lucide-react";
 import WeatherCard from "../components/weather/WeatherCard";
 import { WeatherService } from "../components/weather/WeatherService";
+import { useSearchParams } from "react-router-dom";
 
 export default function Weather() {
+
+    const [searchParams] = useSearchParams();
+
+    const normalize = (value, fallback = "all") => {
+        return value === null || value === "null" ? fallback : value;
+    };
+
+    const initialSearchLocation = normalize(searchParams.get("location"), "");
+
     const { language, user } = useLanguage();
     const [forecasts, setForecasts] = useState([]);
     const [currentWeather, setCurrentWeather] = useState(null);
     const [loading, setLoading] = useState(false);
-    const [location, setLocation] = useState("");
+    const [location, setLocation] = useState(initialSearchLocation);
     const [selectedCoords, setSelectedCoords] = useState(null);
     const weatherService = new WeatherService();
 
