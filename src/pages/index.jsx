@@ -24,38 +24,34 @@ import Consultations from "./Consultations";
 
 import Checkout from "./Checkout";
 
-import checkout from "./checkout";
-
 import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
 
 const PAGES = {
-    
+
     Dashboard: Dashboard,
-    
+
     Profile: Profile,
-    
+
     DataSources: DataSources,
-    
+
     MarketPrices: MarketPrices,
-    
+
     Weather: Weather,
-    
+
     LearningCenter: LearningCenter,
-    
+
     Marketplace: Marketplace,
-    
+
     ProductDetail: ProductDetail,
-    
+
     ExpertDetail: ExpertDetail,
-    
+
     Community: Community,
-    
+
     Consultations: Consultations,
-    
+
     Checkout: Checkout,
-    
-    checkout: checkout,
-    
+
 }
 
 function _getCurrentPage(url) {
@@ -106,9 +102,9 @@ function PagesContent() {
                 <Route path="/Consultations" element={<Consultations />} />
                 
                 <Route path="/Checkout" element={<Checkout />} />
-                
-                <Route path="/checkout" element={<checkout />} />
-                
+
+                <Route path="/checkout" element={<Checkout />} />
+
             </Routes>
         </Layout>
     );
