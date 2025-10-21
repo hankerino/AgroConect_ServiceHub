@@ -1,7 +1,6 @@
 
 import React, { useState, useEffect } from "react";
-import { Consultation } from "@/api/entities";
-import { ForumPost } from "@/api/entities";
+import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -44,8 +43,14 @@ export default function Dashboard() {
 
   const loadConsultations = async () => {
     try {
-      const consultationData = await Consultation.list('-scheduled_date', 3);
-      setConsultations(consultationData);
+      const { data, error } = await supabase
+        .from('consultations')
+        .select('*')
+        .order('scheduled_date', { ascending: false })
+        .limit(3);
+
+      if (error) throw error;
+      setConsultations(data || []);
     } catch (error) {
       console.error("Error loading consultations:", error);
     }
@@ -53,8 +58,14 @@ export default function Dashboard() {
 
   const loadRecentPosts = async () => {
     try {
-      const posts = await ForumPost.list('-created_date', 3);
-      setRecentPosts(posts);
+      const { data, error } = await supabase
+        .from('forum_posts')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(3);
+
+      if (error) throw error;
+      setRecentPosts(data || []);
     } catch (error) {
       console.error("Error loading forum posts:", error);
     }
