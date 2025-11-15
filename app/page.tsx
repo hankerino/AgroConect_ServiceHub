@@ -5,7 +5,7 @@ import { MarketTicker } from '@/components/MarketTicker';
 import { VoiceAssistant } from '@/components/VoiceAssistant';
 import { ServiceCard } from '@/components/ServiceCard';
 import { DashboardStats } from '@/components/DashboardStats';
-import { TrendingUp, Users, BookOpen, ShoppingCart, MessageSquare, Cloud, Sprout, Calendar } from 'lucide-react';
+import { TrendingUp, Users, BookOpen, ShoppingCart, MessageSquare, Cloud, Sprout, Calendar, Target } from 'lucide-react';
 
 export default function Page() {
   return (
@@ -49,6 +49,14 @@ export default function Page() {
               href="/marketplace"
               iconColor="text-blue-600"
               iconBg="bg-blue-100"
+            />
+            
+            <ServiceCard
+              title="Sensor Planner"
+              icon={Target}
+              href="/sensor-planner"
+              iconColor="text-teal-600"
+              iconBg="bg-teal-100"
             />
             
             <ServiceCard

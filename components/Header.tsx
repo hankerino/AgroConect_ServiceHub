@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Sprout, Menu, Home, TrendingUp, Users, BookOpen, ShoppingCart, Calendar, MessageSquare, Cloud, Leaf, X } from 'lucide-react';
+import { Sprout, Menu, Home, TrendingUp, Users, BookOpen, ShoppingCart, Calendar, MessageSquare, Cloud, Leaf, X, Target } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 
@@ -17,6 +17,7 @@ export function Header() {
     { href: '/community', label: 'Forum', icon: MessageSquare },
     { href: '/weather', label: 'Weather', icon: Cloud },
     { href: '/soil-analysis', label: 'Soil Analysis', icon: Leaf },
+    { href: '/sensor-planner', label: 'Sensor Planner', icon: Target },
   ];
 
   return (
