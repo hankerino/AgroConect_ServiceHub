@@ -1,102 +1,108 @@
 'use client';
 
-import { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Sprout, TrendingUp, Users, Calendar } from 'lucide-react';
-import Link from 'next/link';
+import { Header } from '@/components/Header';
+import { MarketTicker } from '@/components/MarketTicker';
+import { VoiceAssistant } from '@/components/VoiceAssistant';
+import { ServiceCard } from '@/components/ServiceCard';
+import { TrendingUp, Users, BookOpen, ShoppingCart, MessageSquare, Cloud, Sprout, Calendar } from 'lucide-react';
 
 export default function Page() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-green-50 to-white">
-      <div className="container mx-auto px-4 py-8">
+    <div className="min-h-screen bg-gray-50">
+      <Header />
+      
+      <MarketTicker />
+      
+      <div className="container mx-auto px-4 py-8 max-w-6xl">
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-green-800 mb-2">
-            Bem-vindo ao AgroConect
+          <h1 className="text-4xl font-bold text-gray-900 mb-3">
+            What Can We Do Today?
           </h1>
-          <p className="text-gray-600">
-            Conectando agricultores com tecnologia e conhecimento
+          <p className="text-xl text-green-600 font-medium mb-2">
+            Welcome back, Henry Quinones!
           </p>
+          <div className="flex items-center gap-2">
+            <svg className="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+            </svg>
+            <span className="text-sm font-medium text-gray-700">Conectado</span>
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <Card className="hover:shadow-lg transition-shadow">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">Total de Usuários</CardTitle>
-              <Users className="h-4 w-4 text-green-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">1,234</div>
-              <p className="text-xs text-gray-500">+12% desde o mês passado</p>
-            </CardContent>
-          </Card>
-
-          <Card className="hover:shadow-lg transition-shadow">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">Consultas Ativas</CardTitle>
-              <Calendar className="h-4 w-4 text-green-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">48</div>
-              <p className="text-xs text-gray-500">+8 esta semana</p>
-            </CardContent>
-          </Card>
-
-          <Card className="hover:shadow-lg transition-shadow">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">Análises de Solo</CardTitle>
-              <Sprout className="h-4 w-4 text-green-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">324</div>
-              <p className="text-xs text-gray-500">+24% crescimento</p>
-            </CardContent>
-          </Card>
-
-          <Card className="hover:shadow-lg transition-shadow">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">Produtos Vendidos</CardTitle>
-              <TrendingUp className="h-4 w-4 text-green-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">892</div>
-              <p className="text-xs text-gray-500">+18% este mês</p>
-            </CardContent>
-          </Card>
+        {/* Voice Assistant */}
+        <div className="mb-8">
+          <VoiceAssistant />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Análise de Solo com IA</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-gray-600 mb-4">
-                Use nosso assistente agrônomo com IA para analisar dados de sensores de solo e receber recomendações personalizadas.
-              </p>
-              <Link href="/soil-analysis">
-                <Button className="w-full">
-                  Iniciar Análise
-                </Button>
-              </Link>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Comunidade AgroConect</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-gray-600 mb-4">
-                Conecte-se com outros agricultores, compartilhe experiências e aprenda com especialistas.
-              </p>
-              <Link href="/community">
-                <Button className="w-full">
-                  Entrar na Comunidade
-                </Button>
-              </Link>
-            </CardContent>
-          </Card>
+        {/* Our Services */}
+        <div className="mb-6">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">Our Services</h2>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <ServiceCard
+              title="Market Prices"
+              icon={TrendingUp}
+              href="/marketplace"
+              iconColor="text-blue-600"
+              iconBg="bg-blue-100"
+            />
+            
+            <ServiceCard
+              title="Community"
+              icon={Users}
+              href="/community"
+              iconColor="text-purple-600"
+              iconBg="bg-purple-100"
+            />
+            
+            <ServiceCard
+              title="Learning Center"
+              icon={BookOpen}
+              href="/learning"
+              iconColor="text-orange-600"
+              iconBg="bg-orange-100"
+            />
+            
+            <ServiceCard
+              title="Products"
+              icon={ShoppingCart}
+              href="/marketplace"
+              iconColor="text-green-600"
+              iconBg="bg-green-100"
+            />
+            
+            <ServiceCard
+              title="Consultations"
+              icon={Calendar}
+              href="/consultations"
+              iconColor="text-red-600"
+              iconBg="bg-red-100"
+            />
+            
+            <ServiceCard
+              title="Forum"
+              icon={MessageSquare}
+              href="/community"
+              iconColor="text-indigo-600"
+              iconBg="bg-indigo-100"
+            />
+            
+            <ServiceCard
+              title="Weather"
+              icon={Cloud}
+              href="/weather"
+              iconColor="text-cyan-600"
+              iconBg="bg-cyan-100"
+            />
+            
+            <ServiceCard
+              title="Soil Analysis"
+              icon={Sprout}
+              href="/soil-analysis"
+              iconColor="text-emerald-600"
+              iconBg="bg-emerald-100"
+            />
+          </div>
         </div>
       </div>
     </div>
