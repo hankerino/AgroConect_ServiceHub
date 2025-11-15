@@ -4,6 +4,7 @@ import { Header } from '@/components/Header';
 import { MarketTicker } from '@/components/MarketTicker';
 import { VoiceAssistant } from '@/components/VoiceAssistant';
 import { ServiceCard } from '@/components/ServiceCard';
+import { DashboardStats } from '@/components/DashboardStats';
 import { TrendingUp, Users, BookOpen, ShoppingCart, MessageSquare, Cloud, Sprout, Calendar } from 'lucide-react';
 
 export default function Page() {
@@ -28,6 +29,9 @@ export default function Page() {
             <span className="text-sm font-medium text-gray-700">Conectado</span>
           </div>
         </div>
+
+        {/* Live Dashboard Stats */}
+        <DashboardStats />
 
         {/* Voice Assistant */}
         <div className="mb-8">
