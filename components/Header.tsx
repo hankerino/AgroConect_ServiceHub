@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Sprout, Menu, Home, TrendingUp, Users, BookOpen, ShoppingCart, Calendar, MessageSquare, Cloud, Leaf, X, Target } from 'lucide-react';
+import { Sprout, Menu, Home, TrendingUp, Users, BookOpen, ShoppingCart, Calendar, MessageSquare, Cloud, Leaf, X, Target, Database, DollarSign, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 
@@ -10,7 +10,10 @@ export function Header() {
 
   const navigationLinks = [
     { href: '/', label: 'Home', icon: Home },
-    { href: '/marketplace', label: 'Market Prices', icon: TrendingUp },
+    { href: '/profile', label: 'Profile', icon: User },
+    { href: '/data-sources', label: 'Data Sources', icon: Database },
+    { href: '/market-prices', label: 'Market Prices', icon: DollarSign },
+    { href: '/marketplace', label: 'Marketplace', icon: ShoppingCart },
     { href: '/community', label: 'Community', icon: Users },
     { href: '/learning', label: 'Learning Center', icon: BookOpen },
     { href: '/consultations', label: 'Consultations', icon: Calendar },

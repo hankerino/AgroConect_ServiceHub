@@ -5,7 +5,7 @@ import { MarketTicker } from '@/components/MarketTicker';
 import { VoiceAssistant } from '@/components/VoiceAssistant';
 import { ServiceCard } from '@/components/ServiceCard';
 import { DashboardStats } from '@/components/DashboardStats';
-import { TrendingUp, Users, BookOpen, ShoppingCart, MessageSquare, Cloud, Sprout, Calendar, Target } from 'lucide-react';
+import { TrendingUp, Users, BookOpen, ShoppingCart, MessageSquare, Cloud, Sprout, Calendar, Target, Database, DollarSign, User } from 'lucide-react';
 
 export default function Page() {
   return (
@@ -44,9 +44,25 @@ export default function Page() {
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <ServiceCard
+              title="Profile"
+              icon={User}
+              href="/profile"
+              iconColor="text-slate-600"
+              iconBg="bg-slate-100"
+            />
+            
+            <ServiceCard
+              title="Data Sources"
+              icon={Database}
+              href="/data-sources"
+              iconColor="text-gray-600"
+              iconBg="bg-gray-100"
+            />
+            
+            <ServiceCard
               title="Market Prices"
-              icon={TrendingUp}
-              href="/marketplace"
+              icon={DollarSign}
+              href="/market-prices"
               iconColor="text-blue-600"
               iconBg="bg-blue-100"
             />
