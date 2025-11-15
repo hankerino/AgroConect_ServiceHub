@@ -23,24 +23,20 @@ export function DashboardStats() {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        console.log('[v0] Fetching dashboard stats');
-        
         const [consultationsRes, productsRes] = await Promise.all([
           fetch('/api/consultations'),
           fetch('/api/products'),
         ]);
 
-        const consultations = await consultationsRes.json();
-        const products = await productsRes.json();
+        const consultationsData = await consultationsRes.json();
+        const productsData = await productsRes.json();
 
         setStats({
-          users: 1247, // Placeholder
-          consultations: Array.isArray(consultations) ? consultations.length : 0,
-          products: Array.isArray(products) ? products.length : 0,
-          soilAnalyses: 89, // Placeholder
+          users: 1247,
+          consultations: consultationsData.data?.length || 0,
+          products: productsData.data?.length || 0,
+          soilAnalyses: 89,
         });
-        
-        console.log('[v0] Dashboard stats loaded');
       } catch (error) {
         console.error('[v0] Error fetching stats:', error);
       } finally {

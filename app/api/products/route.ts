@@ -4,8 +4,10 @@ import { getProducts } from '@/api/entities';
 export async function GET() {
   try {
     const products = await getProducts();
-    return NextResponse.json(products);
+    return NextResponse.json({ data: products, error: null });
   } catch (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ data: null, error: error.message }, { status: 500 });
   }
 }
+
+export const dynamic = 'force-dynamic';

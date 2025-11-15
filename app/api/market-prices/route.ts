@@ -15,4 +15,4 @@ export async function GET() {
 }
 
 export const dynamic = 'force-dynamic';
-export const revalidate = 30; // Revalidate every 30 seconds for fresh data
+export const revalidate = 30;
