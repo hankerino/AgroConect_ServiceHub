@@ -21,19 +21,42 @@ export async function POST() {
       { name: 'Sementes de Soja', price: 450.00, description: 'Sementes de soja de alta produtividade', category: 'Sementes', stock: 500 },
     ];
 
-    const { data: marketData, error: marketError } = await supabase
-      .from('market_prices')
-      .insert(marketPrices)
-      .select();
+    let marketData, marketError;
+    
+    // Try lowercase first
+    const marketResult1 = await supabase.from('market_prices').insert(marketPrices).select();
+    
+    if (marketResult1.error?.code === '42P01') {
+      // Table doesn't exist, try PascalCase
+      console.log('[v0] Trying PascalCase table: MarketPrice');
+      const marketResult2 = await supabase.from('MarketPrice').insert(marketPrices).select();
+      marketData = marketResult2.data;
+      marketError = marketResult2.error;
+    } else {
+      marketData = marketResult1.data;
+      marketError = marketResult1.error;
+    }
 
-    const { data: productsData, error: productsError } = await supabase
-      .from('products')
-      .insert(products)
-      .select();
+    // Try products table
+    let productsData, productsError;
+    
+    const productsResult1 = await supabase.from('products').insert(products).select();
+    
+    if (productsResult1.error?.code === '42P01') {
+      console.log('[v0] Trying PascalCase table: Product');
+      const productsResult2 = await supabase.from('Product').insert(products).select();
+      productsData = productsResult2.data;
+      productsError = productsResult2.error;
+    } else {
+      productsData = productsResult1.data;
+      productsError = productsResult1.error;
+    }
 
     console.log('[v0] Seeding complete:', {
       marketPrices: marketData?.length || 0,
       products: productsData?.length || 0,
+      marketError: marketError?.message,
+      productsError: productsError?.message,
     });
 
     return NextResponse.json({
@@ -54,6 +77,10 @@ export async function POST() {
       { status: 500 }
     );
   }
+}
+
+export async function GET() {
+  return POST();
 }
 
 export const dynamic = 'force-dynamic';

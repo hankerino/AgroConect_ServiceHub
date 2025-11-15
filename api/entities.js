@@ -1,4 +1,4 @@
-import { supabase } from '@/src/config/supabase.js';
+import { supabase } from '@/src/api/supabaseClient.js';
 
 // Entity classes (simplified for backward compatibility)
 export class ForumPost {
@@ -99,7 +99,17 @@ export async function getCommunityGroups() {
 }
 
 export async function getConsultations() {
-  const { data, error } = await supabase.from('consultations').select('*').order('created_at', { ascending: false });
+  console.log('[v0] getConsultations called');
+  let { data, error } = await supabase.from('consultations').select('*').order('created_at', { ascending: false });
+  
+  if (!data || data.length === 0) {
+    console.log('[v0] Trying PascalCase table name: Consultation');
+    const result = await supabase.from('Consultation').select('*').order('scheduled_date', { ascending: false });
+    data = result.data;
+    error = result.error;
+  }
+  
+  console.log('[v0] Consultations result:', { dataLength: data?.length, error: error?.message });
   if (error) throw error;
   return data?.map(item => new Consultation(item)) || [];
 }
@@ -123,13 +133,37 @@ export async function getTechResources() {
 }
 
 export async function getProducts() {
-  const { data, error } = await supabase.from('products').select('*');
+  console.log('[v0] getProducts called');
+  let { data, error } = await supabase.from('products').select('*');
+  
+  if (!data || data.length === 0) {
+    console.log('[v0] Trying PascalCase table name: Product');
+    const result = await supabase.from('Product').select('*').order('created_date', { ascending: false });
+    data = result.data;
+    error = result.error;
+  }
+  
+  console.log('[v0] Products result:', { dataLength: data?.length, error: error?.message });
   if (error) throw error;
   return data?.map(item => new Product(item)) || [];
 }
 
 export async function getMarketPrices() {
-  const { data, error } = await supabase.from('market_prices').select('*').order('date', { ascending: false });
+  console.log('[v0] getMarketPrices called');
+  console.log('[v0] Supabase URL configured:', !!process.env.NEXT_PUBLIC_SUPABASE_URL);
+  
+  // Try lowercase first
+  let { data, error } = await supabase.from('market_prices').select('*').order('date', { ascending: false });
+  
+  // If no data, try PascalCase
+  if (!data || data.length === 0) {
+    console.log('[v0] Trying PascalCase table name: MarketPrice');
+    const result = await supabase.from('MarketPrice').select('*').order('date', { ascending: false });
+    data = result.data;
+    error = result.error;
+  }
+  
+  console.log('[v0] Market prices result:', { dataLength: data?.length, error: error?.message });
   if (error) throw error;
   return data?.map(item => new MarketPrice(item)) || [];
 }
