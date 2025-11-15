@@ -1,7 +1,15 @@
-import React, { createContext, useState, useContext, useEffect, useCallback } from 'react';
-import { supabase } from '@/api/supabaseClient';
+'use client';
 
-const LanguageContext = createContext(null);
+import React, { createContext, useState, useContext, useEffect, useCallback } from 'react';
+import { supabase } from '@/src/api/supabaseClient';
+
+const LanguageContext = createContext<{
+  language: string;
+  user: any;
+  loading: boolean;
+  switchLanguage: (newLang: string) => Promise<void>;
+  reloadUser: () => Promise<void>;
+} | null>(null);
 
 export const useLanguage = () => {
   const context = useContext(LanguageContext);
@@ -11,9 +19,9 @@ export const useLanguage = () => {
   return context;
 };
 
-export const LanguageProvider = ({ children }) => {
+export const LanguageProvider = ({ children }: { children: React.ReactNode }) => {
   const [language, setLanguage] = useState('pt');
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   const loadUserAndLanguage = useCallback(async () => {
@@ -52,7 +60,7 @@ export const LanguageProvider = ({ children }) => {
     return () => subscription.unsubscribe();
   }, [loadUserAndLanguage, language]);
   
-  const switchLanguage = async (newLang) => {
+  const switchLanguage = async (newLang: string) => {
     if (!['en', 'pt'].includes(newLang)) return;
     
     setLanguage(newLang);
@@ -64,7 +72,7 @@ export const LanguageProvider = ({ children }) => {
         if (error) throw error;
         
         // Optimistically update user in context
-        setUser(prevUser => ({
+        setUser((prevUser: any) => ({
           ...prevUser, 
           user_metadata: { ...prevUser.user_metadata, preferred_language: newLang }
         }));
