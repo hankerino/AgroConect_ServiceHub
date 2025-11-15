@@ -1,8 +1,7 @@
-import { clsx, type ClassValue } from 'clsx'
-import { twMerge } from 'tailwind-merge'
+import { type ClassValue } from 'clsx'
 
 export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs))
+  return inputs.filter(Boolean).join(' ')
 }
 
 export function createPageUrl(page: string) {
