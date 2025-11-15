@@ -13,10 +13,12 @@ const createMockClient = () => ({
   }
 });
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+import { createClient } from '@supabase/supabase-js'
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
 // Use mock client if Supabase package fails to load (preview environment)
 export const supabase = typeof window !== 'undefined' && (!supabaseUrl || !supabaseAnonKey)
   ? createMockClient()
-  : createMockClient(); // Always use mock for now to allow preview
+  : createClient(supabaseUrl, supabaseAnonKey);
