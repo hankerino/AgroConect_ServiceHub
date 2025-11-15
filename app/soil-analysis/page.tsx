@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Sprout, FileText } from 'lucide-react';
 import { Header } from '@/components/Header';
+import { ImageUploadOcr } from '@/components/ImageUploadOcr';
 
 export default function SoilAnalysisPage() {
   const [analyses, setAnalyses] = useState([]);
@@ -32,8 +33,14 @@ export default function SoilAnalysisPage() {
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Soil Analysis</h1>
-          <p className="text-gray-600">AI-powered soil health assessments</p>
+          <p className="text-gray-600">AI-powered soil health assessments with document scanning</p>
         </div>
+
+        <div className="mb-8">
+          <ImageUploadOcr />
+        </div>
+
+        <h2 className="text-2xl font-bold text-gray-900 mb-4">Previous Analyses</h2>
 
         {isLoading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
