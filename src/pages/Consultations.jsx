@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { getConsultations } from "@/api/entities";
 import { useLanguage } from "@/components/providers/LanguageProvider";

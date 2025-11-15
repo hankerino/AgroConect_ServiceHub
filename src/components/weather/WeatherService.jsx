@@ -1,4 +1,3 @@
-
 // WeatherService for fetching weather data from OpenWeatherMap API
 // This would typically integrate with a real weather API
 

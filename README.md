@@ -6,15 +6,15 @@ It's a Vite+React app that communicates with the Base44 API.
 
 ## Running the app
 
-```bash
+\`\`\`bash
 npm install
 npm run dev
-```
+\`\`\`
 
 ## Building the app
 
-```bash
+\`\`\`bash
 npm run build
-```
+\`\`\`
 
 For more information and support, please contact Base44 support at app@base44.com.

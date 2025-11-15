@@ -14,9 +14,3 @@ export const InvokeLLM = [];
 // export const GenerateImage = base44.integrations.Core.GenerateImage;
 
 // export const ExtractDataFromUploadedFile = base44.integrations.Core.ExtractDataFromUploadedFile;
-
-
-
-
-
-
