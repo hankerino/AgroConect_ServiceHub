@@ -19,32 +19,54 @@ export function DashboardStats() {
     soilAnalyses: 0,
   });
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const [consultationsRes, productsRes] = await Promise.all([
+        console.log('[v0] Fetching dashboard stats from all API endpoints');
+        
+        const [usersRes, consultationsRes, productsRes, soilAnalysesRes] = await Promise.all([
+          fetch('/api/users'),
           fetch('/api/consultations'),
           fetch('/api/products'),
+          fetch('/api/soil-analyses'),
         ]);
 
-        const consultationsData = await consultationsRes.json();
-        const productsData = await productsRes.json();
+        const [usersData, consultationsData, productsData, soilAnalysesData] = await Promise.all([
+          usersRes.json(),
+          consultationsRes.json(),
+          productsRes.json(),
+          soilAnalysesRes.json(),
+        ]);
 
-        setStats({
-          users: 1247,
+        console.log('[v0] Stats fetched:', {
+          users: usersData.data?.length || 0,
           consultations: consultationsData.data?.length || 0,
           products: productsData.data?.length || 0,
-          soilAnalyses: 89,
+          soilAnalyses: soilAnalysesData.data?.length || 0,
         });
+
+        setStats({
+          users: usersData.data?.length || 0,
+          consultations: consultationsData.data?.length || 0,
+          products: productsData.data?.length || 0,
+          soilAnalyses: soilAnalysesData.data?.length || 0,
+        });
+        
+        setError(null);
       } catch (error) {
         console.error('[v0] Error fetching stats:', error);
+        setError(error instanceof Error ? error.message : 'Failed to load statistics');
       } finally {
         setIsLoading(false);
       }
     };
 
     fetchStats();
+    
+    const interval = setInterval(fetchStats, 60000);
+    return () => clearInterval(interval);
   }, []);
 
   const statCards = [
@@ -77,6 +99,18 @@ export function DashboardStats() {
       bg: 'bg-orange-50',
     },
   ];
+
+  if (error) {
+    return (
+      <div className="mb-8">
+        <Card className="border-red-200 bg-red-50">
+          <CardContent className="p-6">
+            <p className="text-red-600 text-center">Failed to load statistics: {error}</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   if (isLoading) {
     return (
