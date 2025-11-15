@@ -19,20 +19,28 @@ export function MarketTicker() {
     const fetchMarketData = async () => {
       try {
         console.log('[v0] Fetching market prices from API');
-        const response = await fetch('/api/market-prices');
+        const response = await fetch('/api/market-prices', {
+          cache: 'no-store',
+          headers: {
+            'Cache-Control': 'no-cache',
+          },
+        });
+        
+        console.log('[v0] API response status:', response.status);
         
         if (!response.ok) {
           throw new Error(`API responded with status: ${response.status}`);
         }
         
         const result = await response.json();
+        console.log('[v0] API result:', result);
         
         if (result.error) {
           throw new Error(result.error);
         }
         
         if (result.data && result.data.length > 0) {
-          console.log('[v0] Market data received:', result.data);
+          console.log('[v0] Market data received:', result.data.length, 'items');
           const formattedData = result.data.slice(0, 5).map((item: any) => ({
             product: item.product || item.name,
             price: typeof item.price === 'number' 
@@ -43,6 +51,7 @@ export function MarketTicker() {
           setMarketData(formattedData);
           setError(null);
         } else {
+          console.log('[v0] No market data available in response');
           setError('No market data available');
         }
       } catch (error) {
