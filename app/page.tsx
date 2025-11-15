@@ -75,7 +75,7 @@ export default function Page() {
                 Use nosso assistente agrônomo com IA para analisar dados de sensores de solo e receber recomendações personalizadas.
               </p>
               <Link href="/soil-analysis">
-                <Button className="w-full bg-green-600 hover:bg-green-700">
+                <Button className="w-full">
                   Iniciar Análise
                 </Button>
               </Link>
@@ -91,7 +91,7 @@ export default function Page() {
                 Conecte-se com outros agricultores, compartilhe experiências e aprenda com especialistas.
               </p>
               <Link href="/community">
-                <Button className="w-full bg-green-600 hover:bg-green-700">
+                <Button className="w-full">
                   Entrar na Comunidade
                 </Button>
               </Link>
