@@ -14,6 +14,7 @@ export function MarketTicker() {
   const [marketData, setMarketData] = useState<MarketData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [autoSeeded, setAutoSeeded] = useState(false);
 
   useEffect(() => {
     const fetchMarketData = async () => {
@@ -37,6 +38,17 @@ export function MarketTicker() {
         
         if (result.error) {
           throw new Error(result.error);
+        }
+        
+        if ((!result.data || result.data.length === 0) && !autoSeeded) {
+          console.log('[v0] No data found, attempting auto-seed');
+          const seedResponse = await fetch('/api/seed', { method: 'POST' });
+          if (seedResponse.ok) {
+            setAutoSeeded(true);
+            // Retry fetch after seeding
+            setTimeout(() => fetchMarketData(), 1000);
+            return;
+          }
         }
         
         if (result.data && result.data.length > 0) {
@@ -66,7 +78,7 @@ export function MarketTicker() {
     const interval = setInterval(fetchMarketData, 30000);
     
     return () => clearInterval(interval);
-  }, []);
+  }, [autoSeeded]);
 
   if (error) {
     return (
@@ -74,6 +86,7 @@ export function MarketTicker() {
         <div className="flex items-center gap-2 text-sm text-red-600">
           <div className="w-2 h-2 rounded-full bg-red-500" />
           <span>Market data unavailable: {error}</span>
+          <a href="/api/test-db" target="_blank" className="text-blue-600 underline ml-2">Test Database</a>
         </div>
       </div>
     );
