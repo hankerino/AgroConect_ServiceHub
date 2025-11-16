@@ -75,74 +75,58 @@ export class WeatherForecast {
 
 // Getter functions
 export async function getForumPosts() {
-  const { data, error } = await supabase.from('forum_posts').select('*').order('created_at', { ascending: false });
+  const { data, error } = await supabase.from('ForumPost').select('*').order('created_date', { ascending: false });
   if (error) throw error;
   return data?.map(item => new ForumPost(item)) || [];
 }
 
 export async function getCommunityProfiles() {
-  const { data, error } = await supabase.from('community_profiles').select('*');
+  const { data, error } = await supabase.from('CommunityProfile').select('*').order('created_date', { ascending: false });
   if (error) throw error;
   return data?.map(item => new CommunityProfile(item)) || [];
 }
 
 export async function getVideoPosts() {
-  const { data, error } = await supabase.from('video_posts').select('*').order('created_at', { ascending: false });
+  const { data, error } = await supabase.from('VideoPost').select('*').order('created_date', { ascending: false });
   if (error) throw error;
   return data?.map(item => new VideoPost(item)) || [];
 }
 
 export async function getCommunityGroups() {
-  const { data, error } = await supabase.from('community_groups').select('*');
+  const { data, error } = await supabase.from('CommunityGroup').select('*').order('created_date', { ascending: false });
   if (error) throw error;
   return data?.map(item => new CommunityGroup(item)) || [];
 }
 
 export async function getConsultations() {
   console.log('[v0] getConsultations called');
-  let { data, error } = await supabase.from('consultations').select('*').order('created_at', { ascending: false });
-  
-  if (!data || data.length === 0) {
-    console.log('[v0] Trying PascalCase table name: Consultation');
-    const result = await supabase.from('Consultation').select('*').order('scheduled_date', { ascending: false });
-    data = result.data;
-    error = result.error;
-  }
-  
+  const { data, error } = await supabase.from('Consultation').select('*').order('scheduled_date', { ascending: false });
   console.log('[v0] Consultations result:', { dataLength: data?.length, error: error?.message });
   if (error) throw error;
   return data?.map(item => new Consultation(item)) || [];
 }
 
 export async function getDataSources() {
-  const { data, error } = await supabase.from('data_sources').select('*');
+  const { data, error } = await supabase.from('DataSource').select('*');
   if (error) throw error;
   return data?.map(item => new DataSource(item)) || [];
 }
 
 export async function getExperts() {
-  const { data, error } = await supabase.from('experts').select('*');
+  const { data, error } = await supabase.from('Expert').select('*').order('created_date', { ascending: false });
   if (error) throw error;
   return data?.map(item => new Expert(item)) || [];
 }
 
 export async function getTechResources() {
-  const { data, error } = await supabase.from('tech_resources').select('*');
+  const { data, error } = await supabase.from('TechResource').select('*').order('publication_date', { ascending: false });
   if (error) throw error;
   return data?.map(item => new TechResource(item)) || [];
 }
 
 export async function getProducts() {
   console.log('[v0] getProducts called');
-  let { data, error } = await supabase.from('products').select('*');
-  
-  if (!data || data.length === 0) {
-    console.log('[v0] Trying PascalCase table name: Product');
-    const result = await supabase.from('Product').select('*').order('created_date', { ascending: false });
-    data = result.data;
-    error = result.error;
-  }
-  
+  const { data, error } = await supabase.from('Product').select('*').order('created_date', { ascending: false });
   console.log('[v0] Products result:', { dataLength: data?.length, error: error?.message });
   if (error) throw error;
   return data?.map(item => new Product(item)) || [];
@@ -150,32 +134,20 @@ export async function getProducts() {
 
 export async function getMarketPrices() {
   console.log('[v0] getMarketPrices called');
-  console.log('[v0] Supabase URL configured:', !!process.env.NEXT_PUBLIC_SUPABASE_URL);
-  
-  // Try lowercase first
-  let { data, error } = await supabase.from('market_prices').select('*').order('date', { ascending: false });
-  
-  // If no data, try PascalCase
-  if (!data || data.length === 0) {
-    console.log('[v0] Trying PascalCase table name: MarketPrice');
-    const result = await supabase.from('MarketPrice').select('*').order('date', { ascending: false });
-    data = result.data;
-    error = result.error;
-  }
-  
+  const { data, error } = await supabase.from('MarketPrice').select('*').order('date', { ascending: false });
   console.log('[v0] Market prices result:', { dataLength: data?.length, error: error?.message });
   if (error) throw error;
   return data?.map(item => new MarketPrice(item)) || [];
 }
 
 export async function getUsers() {
-  const { data, error } = await supabase.from('users').select('*');
+  const { data, error } = await supabase.from('User').select('*');
   if (error) throw error;
   return data?.map(item => new User(item)) || [];
 }
 
 export async function getWeatherForecasts() {
-  const { data, error } = await supabase.from('weather_forecasts').select('*').order('date', { ascending: false });
+  const { data, error } = await supabase.from('WeatherForecast').select('*');
   if (error) throw error;
   return data?.map(item => new WeatherForecast(item)) || [];
 }

@@ -5,10 +5,14 @@ export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
+    console.log('[v0] Fetching soil analyses...');
+    
     const { data, error } = await supabase
-      .from('soil_analyses')
+      .from('SoilAnalysis')
       .select('*')
-      .order('created_at', { ascending: false });
+      .order('created_date', { ascending: false });
+    
+    console.log('[v0] Soil analyses result:', { dataLength: data?.length, error: error?.message });
     
     if (error) throw error;
     

@@ -42,7 +42,7 @@ export async function POST(request: NextRequest) {
 
     // Store in Supabase
     const { data: analysis, error: dbError } = await supabase
-      .from('soil_analyses')
+      .from('SoilAnalysis')
       .insert({
         user_id: userId,
         analysis_type: analysisType,
