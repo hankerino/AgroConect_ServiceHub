@@ -41,17 +41,17 @@ export function DashboardStats() {
         ]);
 
         console.log('[v0] Stats fetched:', {
-          users: usersData.data?.length || 0,
+          users: usersData.count || usersData.data?.length || 0,
           consultations: consultationsData.data?.length || 0,
           products: productsData.data?.length || 0,
-          soilAnalyses: soilAnalysesData.data?.length || 0,
+          soilAnalyses: soilAnalysesData.count || soilAnalysesData.data?.length || 0,
         });
 
         setStats({
-          users: usersData.data?.length || 0,
+          users: usersData.count || usersData.data?.length || 0,
           consultations: consultationsData.data?.length || 0,
           products: productsData.data?.length || 0,
-          soilAnalyses: soilAnalysesData.data?.length || 0,
+          soilAnalyses: soilAnalysesData.count || soilAnalysesData.data?.length || 0,
         });
         
         setError(null);
