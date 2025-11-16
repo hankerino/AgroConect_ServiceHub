@@ -31,6 +31,7 @@ export function MarketTicker() {
         
         const result = await response.json();
         console.log('[v0] API result:', result);
+        console.log('[v0] Sample data item:', result.data?.[0]);
         
         if (result.error) {
           throw new Error(result.error);
@@ -38,13 +39,18 @@ export function MarketTicker() {
         
         if (result.data && result.data.length > 0) {
           console.log('[v0] Market data received:', result.data.length, 'items');
-          const formattedData = result.data.slice(0, 5).map((item: any) => ({
-            product: item.product || item.name || item.commodity || 'Product',
-            price: item.price_formatted || (typeof item.price === 'number' 
-              ? `R$ ${item.price.toFixed(2)}` 
-              : item.price || 'N/A'),
-            location: item.location || item.city || item.region || 'Brasil',
-          }));
+          const formattedData = result.data.slice(0, 5).map((item: any) => {
+            console.log('[v0] Mapping item fields:', Object.keys(item));
+            return {
+              product: item.commodity || item.product || item.name || item.crop || 'Product',
+              price: item.price_formatted || 
+                     (typeof item.price === 'number' ? `R$ ${item.price.toFixed(2)}` : 
+                     typeof item.value === 'number' ? `R$ ${item.value.toFixed(2)}` :
+                     item.price || item.value || 'N/A'),
+              location: item.location || item.city || item.region || item.state || 'Brasil',
+            };
+          });
+          console.log('[v0] Formatted market data:', formattedData);
           setMarketData(formattedData);
           setError(null);
         } else {
@@ -70,7 +76,7 @@ export function MarketTicker() {
         <div className="flex items-center gap-2 text-sm text-red-600">
           <div className="w-2 h-2 rounded-full bg-red-500" />
           <span>Market data unavailable: {error}</span>
-          <a href="/api/test-db" target="_blank" className="text-blue-600 underline ml-2">Test Database</a>
+          <a href="/api/market-prices/debug" target="_blank" className="text-blue-600 underline ml-2">Debug Fields</a>
         </div>
       </div>
     );
