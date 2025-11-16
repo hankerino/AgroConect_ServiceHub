@@ -34,26 +34,11 @@ export function MarketTicker() {
         
         if (result.data && result.data.length > 0) {
           const formattedData = result.data.slice(0, 5).map((item: any) => {
-            // Try all possible product/commodity field names
-            const productName = item.commodity || item.product_name || item.product || 
-                               item.name || item.crop || item.item || item.description || 
-                               item.type || 'Produto';
-            
-            // Try all possible price field names and format currency
-            let priceValue = 'N/A';
-            if (item.price !== undefined && item.price !== null) {
-              priceValue = typeof item.price === 'number' ? `R$ ${item.price.toFixed(2)}` : String(item.price);
-            } else if (item.value !== undefined && item.value !== null) {
-              priceValue = typeof item.value === 'number' ? `R$ ${item.value.toFixed(2)}` : String(item.value);
-            } else if (item.current_price !== undefined && item.current_price !== null) {
-              priceValue = typeof item.current_price === 'number' ? `R$ ${item.current_price.toFixed(2)}` : String(item.current_price);
-            } else if (item.price_formatted) {
-              priceValue = item.price_formatted;
-            }
-            
-            // Try all possible location field names
-            const locationName = item.location || item.city || item.region || 
-                                item.state || item.local || item.place || 'Brasil';
+            const productName = item.crop_name || 'Produto';
+            const priceValue = item.price_per_kg 
+              ? `R$ ${Number(item.price_per_kg).toFixed(2)}` 
+              : 'N/A';
+            const locationName = item.market_location || 'Brasil';
             
             return {
               product: productName,
