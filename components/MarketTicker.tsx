@@ -18,43 +18,52 @@ export function MarketTicker() {
   useEffect(() => {
     const fetchMarketData = async () => {
       try {
-        console.log('[v0] Fetching market prices from API');
         const response = await fetch('/api/market-prices', {
           cache: 'no-store',
         });
-        
-        console.log('[v0] API response status:', response.status);
         
         if (!response.ok) {
           throw new Error(`API responded with status: ${response.status}`);
         }
         
         const result = await response.json();
-        console.log('[v0] API result:', result);
-        console.log('[v0] Sample data item:', result.data?.[0]);
         
         if (result.error) {
           throw new Error(result.error);
         }
         
         if (result.data && result.data.length > 0) {
-          console.log('[v0] Market data received:', result.data.length, 'items');
           const formattedData = result.data.slice(0, 5).map((item: any) => {
-            console.log('[v0] Mapping item fields:', Object.keys(item));
+            // Try all possible product/commodity field names
+            const productName = item.commodity || item.product_name || item.product || 
+                               item.name || item.crop || item.item || item.description || 
+                               item.type || 'Produto';
+            
+            // Try all possible price field names and format currency
+            let priceValue = 'N/A';
+            if (item.price !== undefined && item.price !== null) {
+              priceValue = typeof item.price === 'number' ? `R$ ${item.price.toFixed(2)}` : String(item.price);
+            } else if (item.value !== undefined && item.value !== null) {
+              priceValue = typeof item.value === 'number' ? `R$ ${item.value.toFixed(2)}` : String(item.value);
+            } else if (item.current_price !== undefined && item.current_price !== null) {
+              priceValue = typeof item.current_price === 'number' ? `R$ ${item.current_price.toFixed(2)}` : String(item.current_price);
+            } else if (item.price_formatted) {
+              priceValue = item.price_formatted;
+            }
+            
+            // Try all possible location field names
+            const locationName = item.location || item.city || item.region || 
+                                item.state || item.local || item.place || 'Brasil';
+            
             return {
-              product: item.commodity || item.product || item.name || item.crop || 'Product',
-              price: item.price_formatted || 
-                     (typeof item.price === 'number' ? `R$ ${item.price.toFixed(2)}` : 
-                     typeof item.value === 'number' ? `R$ ${item.value.toFixed(2)}` :
-                     item.price || item.value || 'N/A'),
-              location: item.location || item.city || item.region || item.state || 'Brasil',
+              product: productName,
+              price: priceValue,
+              location: locationName,
             };
           });
-          console.log('[v0] Formatted market data:', formattedData);
+          
           setMarketData(formattedData);
           setError(null);
-        } else {
-          console.log('[v0] No market data available');
         }
       } catch (error) {
         console.error('[v0] Error fetching market data:', error);
@@ -76,7 +85,6 @@ export function MarketTicker() {
         <div className="flex items-center gap-2 text-sm text-red-600">
           <div className="w-2 h-2 rounded-full bg-red-500" />
           <span>Market data unavailable: {error}</span>
-          <a href="/api/market-prices/debug" target="_blank" className="text-blue-600 underline ml-2">Debug Fields</a>
         </div>
       </div>
     );
