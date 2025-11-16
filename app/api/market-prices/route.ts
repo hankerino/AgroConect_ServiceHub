@@ -1,15 +1,35 @@
 import { NextResponse } from 'next/server';
-import { getMarketPrices } from '@/api/entities.js';
+import { supabaseServer } from '@/lib/supabase-server';
 
 export async function GET() {
   try {
-    console.log('[v0] Fetching market prices...');
-    const marketPrices = await getMarketPrices();
-    console.log('[v0] Market prices fetched:', marketPrices?.length || 0, 'items');
-    return NextResponse.json({ data: marketPrices, error: null });
+    console.log('[v0] Fetching market prices from Supabase...');
+    console.log('[v0] Supabase URL:', process.env.NEXT_PUBLIC_SUPABASE_URL?.substring(0, 20) + '...');
+    
+    let { data, error } = await supabaseServer
+      .from('market_prices')
+      .select('*')
+      .order('date', { ascending: false });
+    
+    if (error || !data || data.length === 0) {
+      console.log('[v0] Trying PascalCase table: MarketPrice');
+      const result = await supabaseServer
+        .from('MarketPrice')
+        .select('*')
+        .order('date', { ascending: false });
+      data = result.data;
+      error = result.error;
+    }
+    
+    console.log('[v0] Market prices result:', { count: data?.length, error: error?.message });
+    
+    if (error) {
+      throw error;
+    }
+    
+    return NextResponse.json({ data, error: null });
   } catch (error) {
     console.error('[v0] Market prices API error:', error);
-    console.error('[v0] Error details:', error.message, error.stack);
     return NextResponse.json(
       { data: null, error: error.message || 'Failed to fetch market prices' },
       { status: 500 }
@@ -18,4 +38,4 @@ export async function GET() {
 }
 
 export const dynamic = 'force-dynamic';
-export const revalidate = 30;
+export const revalidate = 0;

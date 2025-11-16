@@ -14,7 +14,6 @@ export function MarketTicker() {
   const [marketData, setMarketData] = useState<MarketData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [autoSeeded, setAutoSeeded] = useState(false);
 
   useEffect(() => {
     const fetchMarketData = async () => {
@@ -22,9 +21,6 @@ export function MarketTicker() {
         console.log('[v0] Fetching market prices from API');
         const response = await fetch('/api/market-prices', {
           cache: 'no-store',
-          headers: {
-            'Cache-Control': 'no-cache',
-          },
         });
         
         console.log('[v0] API response status:', response.status);
@@ -40,31 +36,19 @@ export function MarketTicker() {
           throw new Error(result.error);
         }
         
-        if ((!result.data || result.data.length === 0) && !autoSeeded) {
-          console.log('[v0] No data found, attempting auto-seed');
-          const seedResponse = await fetch('/api/seed', { method: 'POST' });
-          if (seedResponse.ok) {
-            setAutoSeeded(true);
-            // Retry fetch after seeding
-            setTimeout(() => fetchMarketData(), 1000);
-            return;
-          }
-        }
-        
         if (result.data && result.data.length > 0) {
           console.log('[v0] Market data received:', result.data.length, 'items');
           const formattedData = result.data.slice(0, 5).map((item: any) => ({
-            product: item.product || item.name,
-            price: typeof item.price === 'number' 
+            product: item.product || item.name || item.commodity || 'Product',
+            price: item.price_formatted || (typeof item.price === 'number' 
               ? `R$ ${item.price.toFixed(2)}` 
-              : item.price,
-            location: item.location || item.city || 'Brasil',
+              : item.price || 'N/A'),
+            location: item.location || item.city || item.region || 'Brasil',
           }));
           setMarketData(formattedData);
           setError(null);
         } else {
-          console.log('[v0] No market data available in response');
-          setError('No market data available');
+          console.log('[v0] No market data available');
         }
       } catch (error) {
         console.error('[v0] Error fetching market data:', error);
@@ -75,10 +59,10 @@ export function MarketTicker() {
     };
 
     fetchMarketData();
-    const interval = setInterval(fetchMarketData, 30000);
+    const interval = setInterval(fetchMarketData, 60000);
     
     return () => clearInterval(interval);
-  }, [autoSeeded]);
+  }, []);
 
   if (error) {
     return (
