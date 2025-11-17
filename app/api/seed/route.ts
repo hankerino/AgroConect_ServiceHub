@@ -73,7 +73,7 @@ export async function POST() {
   } catch (error) {
     console.error('[v0] Seeding error:', error);
     return NextResponse.json(
-      { success: false, error: error instanceof Error ? error.message : 'Unknown error' },
+      { success: false, error: error instanceof Error ? error instanceof Error ? error.message : 'Unknown error' : 'Unknown error' },
       { status: 500 }
     );
   }

@@ -37,7 +37,7 @@ export async function GET() {
   } catch (error) {
     console.error('[v0] Error listing tables:', error);
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'Failed to list tables' },
+      { error: error instanceof Error ? error instanceof Error ? error.message : 'Unknown error' : 'Failed to list tables' },
       { status: 500 }
     );
   }

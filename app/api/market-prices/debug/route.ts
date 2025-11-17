@@ -22,7 +22,7 @@ export async function GET() {
     
     if (error) {
       return NextResponse.json({ 
-        error: error.message,
+        error: error instanceof Error ? error.message : 'Unknown error',
         fields: null,
         sample: null 
       });
@@ -39,7 +39,7 @@ export async function GET() {
     });
   } catch (error) {
     return NextResponse.json({ 
-      error: error.message,
+      error: error instanceof Error ? error.message : 'Unknown error',
       fields: null,
       sample: null 
     }, { status: 500 });

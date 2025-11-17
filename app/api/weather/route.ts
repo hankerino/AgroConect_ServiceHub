@@ -9,7 +9,7 @@ export async function GET() {
     return NextResponse.json({ data: forecasts, error: null });
   } catch (error) {
     console.error('[v0] Weather forecasts API error:', error);
-    return NextResponse.json({ data: null, error: error.message }, { status: 500 });
+    return NextResponse.json({ data: null, error: error instanceof Error ? error.message : 'Unknown error' }, { status: 500 });
   }
 }
 

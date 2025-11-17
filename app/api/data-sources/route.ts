@@ -12,9 +12,9 @@ export async function GET() {
     
     return NextResponse.json({ data: dataSources, error: null });
   } catch (error: any) {
-    console.error('[v0] Error fetching data sources:', error.message);
+    console.error('[v0] Error fetching data sources:', error instanceof Error ? error.message : 'Unknown error');
     return NextResponse.json(
-      { data: [], error: error.message },
+      { data: [], error: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
     );
   }

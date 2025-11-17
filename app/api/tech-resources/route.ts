@@ -9,7 +9,7 @@ export async function GET() {
     return NextResponse.json({ data: resources, error: null });
   } catch (error) {
     console.error('[v0] Tech resources API error:', error);
-    return NextResponse.json({ data: null, error: error.message }, { status: 500 });
+    return NextResponse.json({ data: null, error: error instanceof Error ? error.message : 'Unknown error' }, { status: 500 });
   }
 }
 

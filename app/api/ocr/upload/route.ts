@@ -73,7 +73,7 @@ export async function POST(request: NextRequest) {
     console.error('[v0] OCR upload error:', error);
     return NextResponse.json(
       { 
-        error: error instanceof Error ? error.message : 'Failed to process image',
+        error: error instanceof Error ? error instanceof Error ? error.message : 'Unknown error' : 'Failed to process image',
         details: error instanceof Error ? error.stack : undefined
       },
       { status: 500 }
