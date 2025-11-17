@@ -54,8 +54,8 @@ export default function SensorMap({ isDrawing, onAreaCalculated, onClear }: Sens
       const drawControl = new L.Control.Draw({
         edit: {
           featureGroup: drawnItems,
-          edit: true,
-          remove: true,
+          edit: {},
+          remove: {},
         },
         draw: {
           polygon: {
@@ -68,7 +68,7 @@ export default function SensorMap({ isDrawing, onAreaCalculated, onClear }: Sens
           marker: false,
           circlemarker: false,
         },
-      });
+      } as any);
 
       drawControlRef.current = drawControl;
 
