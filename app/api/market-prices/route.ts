@@ -31,7 +31,7 @@ export async function GET() {
   } catch (error) {
     console.error('[v0] Market prices API error:', error);
     return NextResponse.json(
-      { data: null, error: error instanceof Error ? error.message : 'Unknown error' || 'Failed to fetch market prices' },
+      { data: null, error: error instanceof Error ? error.message : 'Failed to fetch market prices' },
       { status: 500 }
     );
   }
