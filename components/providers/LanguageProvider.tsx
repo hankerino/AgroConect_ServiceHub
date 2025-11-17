@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useState, useContext, useEffect, useCallback } from 'react';
-import { supabase } from '@/src/api/supabaseClient';
+import { supabase } from '@/src/api/supabaseClient.js';
 
 const LanguageContext = createContext<{
   language: string;
