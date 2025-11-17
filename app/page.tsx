@@ -20,7 +20,7 @@ export default function Page() {
             What Can We Do Today?
           </h1>
           <p className="text-xl text-green-600 font-medium mb-2">
-            Welcome back, Henry Quinones!
+            Welcome back!
           </p>
           <div className="flex items-center gap-2">
             <svg className="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 20 20">

@@ -99,9 +99,7 @@ export async function getCommunityGroups() {
 }
 
 export async function getConsultations() {
-  console.log('[v0] getConsultations called');
   const { data, error } = await supabase.from('Consultation').select('*').order('scheduled_date', { ascending: false });
-  console.log('[v0] Consultations result:', { dataLength: data?.length, error: error?.message });
   if (error) throw error;
   return data?.map(item => new Consultation(item)) || [];
 }
@@ -125,17 +123,13 @@ export async function getTechResources() {
 }
 
 export async function getProducts() {
-  console.log('[v0] getProducts called');
   const { data, error } = await supabase.from('Product').select('*').order('created_date', { ascending: false });
-  console.log('[v0] Products result:', { dataLength: data?.length, error: error?.message });
   if (error) throw error;
   return data?.map(item => new Product(item)) || [];
 }
 
 export async function getMarketPrices() {
-  console.log('[v0] getMarketPrices called');
-  const { data, error } = await supabase.from('MarketPrice').select('*').order('date', { ascending: false });
-  console.log('[v0] Market prices result:', { dataLength: data?.length, error: error?.message });
+  const { data, error} = await supabase.from('MarketPrice').select('*').order('date', { ascending: false });
   if (error) throw error;
   return data?.map(item => new MarketPrice(item)) || [];
 }
