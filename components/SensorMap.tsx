@@ -101,7 +101,8 @@ export default function SensorMap({ isDrawing, onAreaCalculated, onClear }: Sens
 
       drawnItemsRef.current.eachLayer((layer: any) => {
         if (layer instanceof L.Polygon || layer instanceof L.Rectangle) {
-          const area = L.GeometryUtil.geodesicArea(layer.getLatLngs()[0]);
+          const latLngs = layer.getLatLngs()[0];
+          const area = L.GeometryUtil.geodesicArea(latLngs as any);
           // Convert square meters to hectares
           totalArea += area / 10000;
           shapes.push(layer.toGeoJSON());
