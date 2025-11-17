@@ -17,7 +17,6 @@ export function Header() {
     { href: '/community', label: 'Community', icon: Users },
     { href: '/learning', label: 'Learning Center', icon: BookOpen },
     { href: '/consultations', label: 'Consultations', icon: Calendar },
-    { href: '/community', label: 'Forum', icon: MessageSquare },
     { href: '/weather', label: 'Weather', icon: Cloud },
     { href: '/soil-analysis', label: 'Soil Analysis', icon: Leaf },
     { href: '/sensor-planner', label: 'Sensor Planner', icon: Target },
