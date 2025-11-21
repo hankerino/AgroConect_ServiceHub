@@ -1,6 +1,7 @@
 {
   "/page": "app/page.js",
   "/community/page": "app/community/page.js",
+  "/profile/page": "app/profile/page.js",
   "/api/market-prices/route": "app/api/market-prices/route.js",
   "/api/users/route": "app/api/users/route.js",
   "/api/consultations/route": "app/api/consultations/route.js",
