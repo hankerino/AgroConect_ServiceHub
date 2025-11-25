@@ -75,28 +75,28 @@ export function DashboardStats() {
       value: stats.users,
       icon: Users,
       color: 'text-blue-600',
-      bg: 'bg-blue-50',
+      bg: 'bg-gradient-to-br from-blue-50 to-blue-100',
     },
     {
       title: 'Consultations',
       value: stats.consultations,
       icon: Calendar,
-      color: 'text-green-600',
-      bg: 'bg-green-50',
+      color: 'text-emerald-600',
+      bg: 'bg-gradient-to-br from-emerald-50 to-emerald-100',
     },
     {
       title: 'Products',
       value: stats.products,
       icon: ShoppingCart,
-      color: 'text-purple-600',
-      bg: 'bg-purple-50',
+      color: 'text-violet-600',
+      bg: 'bg-gradient-to-br from-violet-50 to-violet-100',
     },
     {
       title: 'Soil Analyses',
       value: stats.soilAnalyses,
       icon: Sprout,
       color: 'text-orange-600',
-      bg: 'bg-orange-50',
+      bg: 'bg-gradient-to-br from-orange-50 to-orange-100',
     },
   ];
 
@@ -131,14 +131,14 @@ export function DashboardStats() {
       {statCards.map((stat, index) => {
         const Icon = stat.icon;
         return (
-          <Card key={index} className="hover:shadow-md transition-shadow">
+          <Card key={index} className="hover:shadow-xl hover:scale-105 transition-all duration-300 border-2 bg-white/80 backdrop-blur-sm">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600 mb-1">{stat.title}</p>
+                  <p className="text-sm text-gray-600 font-medium mb-1">{stat.title}</p>
                   <p className="text-3xl font-bold text-gray-900">{stat.value}</p>
                 </div>
-                <div className={`${stat.bg} p-3 rounded-lg`}>
+                <div className={`${stat.bg} p-3 rounded-xl shadow-md`}>
                   <Icon className={`h-6 w-6 ${stat.color}`} />
                 </div>
               </div>
