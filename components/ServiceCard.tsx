@@ -21,12 +21,12 @@ export function ServiceCard({
 }: ServiceCardProps) {
   return (
     <Link href={href}>
-      <Card className="hover:shadow-xl hover:scale-105 transition-all duration-300 cursor-pointer h-full border-2 hover:border-emerald-200 bg-white/80 backdrop-blur-sm">
+      <Card className="hover:shadow-lg transition-shadow cursor-pointer h-full">
         <CardContent className="p-6">
-          <div className={`w-14 h-14 ${iconBg} rounded-xl flex items-center justify-center mb-4 shadow-md`}>
-            <Icon className={`h-7 w-7 ${iconColor}`} />
+          <div className={`w-12 h-12 ${iconBg} rounded-lg flex items-center justify-center mb-4`}>
+            <Icon className={`h-6 w-6 ${iconColor}`} />
           </div>
-          <h3 className="font-bold text-lg mb-2 text-gray-800">{title}</h3>
+          <h3 className="font-semibold text-lg mb-2">{title}</h3>
           {description && <p className="text-sm text-gray-600">{description}</p>}
         </CardContent>
       </Card>

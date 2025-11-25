@@ -76,11 +76,11 @@ export function MarketTicker() {
   }
 
   return (
-    <div className="bg-gradient-to-r from-emerald-50 via-white to-green-50 border-b-2 border-emerald-200 py-3 px-4 shadow-sm">
+    <div className="bg-white border-b border-gray-200 py-2 px-4">
       <div className="flex items-center gap-2">
-        <div className="flex items-center gap-1.5 px-3 py-1 bg-white rounded-full shadow-sm">
+        <div className="flex items-center gap-1.5">
           <div className={`w-2 h-2 rounded-full ${isLoading ? 'bg-yellow-500' : 'bg-green-500 animate-pulse'}`} />
-          <span className="text-sm font-semibold text-gray-800">
+          <span className="text-sm font-medium text-gray-700">
             {isLoading ? 'Loading Market' : 'Live Market'}
           </span>
         </div>
@@ -91,9 +91,9 @@ export function MarketTicker() {
             <span className="text-sm text-gray-500">No market data available</span>
           ) : (
             marketData.map((item, index) => (
-              <div key={index} className="flex items-center gap-2 text-sm whitespace-nowrap px-3 py-1 bg-white rounded-lg shadow-sm">
-                <span className="font-semibold text-gray-900">{item.product}</span>
-                <span className="text-emerald-600 font-bold">{item.price}</span>
+              <div key={index} className="flex items-center gap-2 text-sm whitespace-nowrap">
+                <span className="font-medium text-gray-900">{item.product}</span>
+                <span className="text-green-600 font-semibold">{item.price}</span>
                 <span className="text-gray-500">📍 {item.location}</span>
               </div>
             ))
