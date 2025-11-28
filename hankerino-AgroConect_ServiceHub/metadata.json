@@ -1,0 +1,8 @@
+{
+  "name": "AgroConect ServiceHub",
+  "description": "An intelligent agronomist assistant and farmer dashboard featuring real-time market data, weather insights, and a Gemini-powered voice assistant.",
+  "requestFramePermissions": [
+    "microphone",
+    "geolocation"
+  ]
+}
