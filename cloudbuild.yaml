@@ -4,14 +4,15 @@ steps:
     - 'run'
     - 'deploy'
     - 'agroconect-servicehub'  # Your Cloud Run service name
-    - '--image=gcr.io/$PROJECT_ID/agroconect-servicehub' # The name of the container image to create
+    - '--image=us-west1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/agroconect-servicehub' # UPDATED IMAGE FORMAT
     - '--region=us-west1'      # The region where your Cloud Run service will be deployed
-    - '--source=.'             # THIS IS THE KEY: tells gcloud to build from source using Buildpacks
+    - '--source=.'             # Tells gcloud to build from source using Buildpacks
     - '--platform=managed'     # Specifies Google-managed Cloud Run platform
     - '--allow-unauthenticated' # OPTIONAL: Remove this if your service requires authentication
   id: Deploy to Cloud Run
 images:
-- 'gcr.io/$PROJECT_ID/agroconect-servicehub' # This line ensures the image is tagged and visible
+- 'us-west1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/agroconect-servicehub' # UPDATED IMAGE FORMAT
 options:
   logging: CLOUD_LOGGING_ONLY
+
 
