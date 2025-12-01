@@ -12,3 +12,6 @@ steps:
   id: Deploy to Cloud Run
 images:
 - 'gcr.io/$PROJECT_ID/agroconect-servicehub' # This line ensures the image is tagged and visible
+options:
+  logging: CLOUD_LOGGING_ONLY
+
