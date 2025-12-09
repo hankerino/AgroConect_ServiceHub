@@ -1,53 +1,69 @@
-# GitHub Sync & Push Instructions
+# How to Push Changes to the AgroConect ServiceHub Repository
 
-This environment cannot reach GitHub over HTTPS tunneling (attempts return `403 CONNECT`). Use a machine with outbound
-GitHub access—or supply a Personal Access Token (PAT) if your network permits—to pull updates or push work to
-`https://github.com/hankerino/AgroConect_ServiceHub.git`.
+This guide provides step-by-step instructions on how to push your local changes to the GitHub repository.
 
-## One-time remote setup
+## 1. Configure Your GitHub Personal Access Token (PAT)
 
-```bash
-# If origin is not configured
-git remote add origin https://github.com/hankerino/AgroConect_ServiceHub.git
+To push changes, you need a GitHub Personal Access Token (PAT) with the correct permissions.
 
-# Verify the remote URL
-git remote -v
-```
+1.  **Go to your GitHub settings:**
+    *   Click on your profile picture in the top-right corner and select "Settings".
+    *   In the left sidebar, click on "Developer settings".
+    *   Click on "Personal access tokens" and then "Tokens (classic)".
 
-## Pull the latest changes from GitHub
+2.  **Generate a new token (or edit an existing one):**
+    *   Click "Generate new token" (or edit your existing token for this repository).
+    *   Give your token a descriptive name (e.g., "AgroConect-ServiceHub-Token").
+    *   **Crucially, you must select the following scopes:**
+        *   `repo` (Full control of private repositories)
+        *   `workflow` (Update GitHub Action workflows)
 
-If your environment allows GitHub access:
+3.  **Copy and save your token:**
+    *   Click "Generate token" at the bottom of the page.
+    *   Copy the token and save it in a safe place. You will not be able to see it again.
 
-```bash
-git fetch origin
-# To update this branch with the latest remote changes
-git pull --rebase origin work  # or replace `work` with your branch name
-```
+## 2. The Git Workflow
 
-If `git fetch` fails with `403 CONNECT`, pull on another machine with GitHub access and copy the updated repo back
-into this workspace (e.g., via archive download or file transfer).
+Follow these steps every time you want to push your changes:
 
-## Push from a machine with GitHub access
+1.  **Pull the latest changes:**
+    *   Before you start working, and before you push, always pull the latest changes from the remote repository to avoid merge conflicts:
+        ```bash
+        git pull origin main
+        ```
 
-```bash
-git checkout work
-git pull --rebase origin work
+2.  **Add your changes:**
+    *   Stage all your changes for commit:
+        ```bash
+        git add .
+        ```
 
-git add .
-git commit -m "<your message>"
+3.  **Commit your changes:**
+    *   Commit your staged changes with a descriptive message:
+        ```bash
+        git commit -m "Your descriptive commit message"
+        ```
 
-git push -u origin work
-```
+4.  **Push your changes:**
+    *   Push your committed changes to the remote repository:
+        ```bash
+        git push origin main
+        ```
 
-## Push or pull from this environment with a PAT (if HTTPS is allowed)
+## 3. Troubleshooting: Credential Caching
 
-1. Create a PAT with `repo` scope on GitHub.
-2. Export it before pushing or pulling:
+If you have previously entered an incorrect password or token, your computer may have cached it. If you get a permission error even after creating a new token with the correct scopes, you may need to clear your cached credentials.
 
-```bash
-export GITHUB_TOKEN="<your token>"
-# Git uses the token when prompted for a password
-```
+**On macOS:**
 
-If the environment still blocks HTTPS CONNECT after providing a token, perform Git operations from a network that
-allows outbound GitHub traffic.
+1.  Open the "Keychain Access" application.
+2.  Search for `github.com`.
+3.  Find the "internet password" entry for `github.com` and delete it.
+4.  The next time you push, you will be prompted to enter your username and password. Use your new PAT as the password.
+
+**On Windows:**
+
+1.  Open the "Credential Manager".
+2.  Go to "Windows Credentials".
+3.  Find the entry for `git:https://github.com` and remove it.
+4.  The next time you push, you will be prompted to sign in.

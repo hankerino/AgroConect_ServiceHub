@@ -1,20 +1,27 @@
-# Base44 App
+# AgroConect ServiceHub
 
+This is a Next.js application for the AgroConect ServiceHub platform.
 
-This app was created automatically by Base44.
-It's a Vite+React app that communicates with the Base44 API.
+## Running the app locally
 
-## Running the app
+To get started, clone the repository and install the dependencies:
 
-\`\`\`bash
+```bash
 npm install
+```
+
+Then, run the development server:
+
+```bash
 npm run dev
-\`\`\`
+```
+
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
 ## Building the app
 
-\`\`\`bash
-npm run build
-\`\`\`
+To create a production build, run:
 
-For more information and support, please contact Base44 support at app@base44.com.
+```bash
+npm run build
+```
