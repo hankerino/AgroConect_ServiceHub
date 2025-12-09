@@ -11,10 +11,11 @@ export async function GET() {
     console.log('[v0] Data sources fetched:', dataSources.length);
     
     return NextResponse.json({ data: dataSources, error: null });
-  } catch (error: any) {
-    console.error('[v0] Error fetching data sources:', error.message);
+  } catch (error: unknown) {
+    console.error('[v0] Error fetching data sources:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Failed to fetch data sources';
     return NextResponse.json(
-      { data: [], error: error.message },
+      { data: [], error: errorMessage },
       { status: 500 }
     );
   }

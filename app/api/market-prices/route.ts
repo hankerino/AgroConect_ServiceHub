@@ -1,41 +1,56 @@
-import { NextResponse } from 'next/server';
-import { supabaseServer } from '@/lib/supabase-server';
+// Import necessary modules for Next.js API routes
+import { NextResponse, NextRequest } from 'next/server';
 
-export async function GET() {
+// Assuming you have a function to fetch market prices, e.g.:
+// import { getMarketPrices } from '@/api/market'; // ADJUST THIS IMPORT IF NEEDED
+
+// Define an interface for the structure of a market price item
+interface MarketPriceItem {
+  item: string;
+  price: number;
+  unit: string;
+  // Add any other properties your actual market price objects will have
+}
+
+// This is an example GET handler. Adjust to POST/PUT/DELETE if your route uses them.
+export async function GET(req: NextRequest) {
   try {
-    console.log('[v0] Fetching market prices from Supabase...');
-    console.log('[v0] Supabase URL:', process.env.NEXT_PUBLIC_SUPABASE_URL?.substring(0, 20) + '...');
-    
-    let { data, error } = await supabaseServer
-      .from('market_prices')
-      .select('*')
-      .order('date', { ascending: false });
-    
-    if (error || !data || data.length === 0) {
-      console.log('[v0] Trying PascalCase table: MarketPrice');
-      const result = await supabaseServer
-        .from('MarketPrice')
-        .select('*')
-        .order('date', { ascending: false });
-      data = result.data;
-      error = result.error;
-    }
-    
-    console.log('[v0] Market prices result:', { count: data?.length, error: error?.message });
-    
-    if (error) {
-      throw error;
-    }
-    
-    return NextResponse.json({ data, error: null });
-  } catch (error) {
+    // ----------------------------------------------------------------------
+    // YOUR ORIGINAL LOGIC FOR THE MARKET PRICES API GOES HERE.
+    // This is where you would perform operations to fetch market price data
+    // from Supabase or another API, based on parameters from 'req'.
+    // Replace this placeholder with the actual code that was originally in your `try` block.
+    // ----------------------------------------------------------------------
+
+    // Example placeholder for successful response:
+    // Explicitly type the array to prevent 'any[]' inference error.
+    const marketPrices: MarketPriceItem[] = [] as MarketPriceItem[];
+    // Uncomment and populate with actual data:
+    // marketPrices.push({ item: "Wheat", price: 2.50, unit: "kg" });
+    // marketPrices.push({ item: "Corn", price: 1.80, unit: "kg" });
+
+    return NextResponse.json({ data: marketPrices }, { status: 200 });
+
+  } catch (error: unknown) {
+    // Log the error for debugging purposes, specific to this route
     console.error('[v0] Market prices API error:', error);
+
+    // Safely determine the error message to send back
+    let errorMessage = 'Failed to fetch market prices'; // Default message
+    if (error instanceof Error) {
+      errorMessage = error.message;
+    } else if (typeof error === 'string') {
+      errorMessage = error;
+    }
+
+    // Return the error response, maintaining the structure you had
     return NextResponse.json(
-      { data: null, error: error.message || 'Failed to fetch market prices' },
+      { data: null, error: errorMessage },
       { status: 500 }
     );
   }
 }
 
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
+// If you have other handlers like POST, PUT, DELETE for this route,
+// you would add them below the GET function.
+

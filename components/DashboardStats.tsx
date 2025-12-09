@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Users, Calendar, Sprout, ShoppingCart } from 'lucide-react';
+import { getUsers, getConsultations, getProducts, getSoilAnalyses } from '@/lib/static-api';
 
 interface StatsData {
   users: number;
@@ -24,20 +25,13 @@ export function DashboardStats() {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        console.log('[v0] Fetching dashboard stats from all API endpoints');
+        console.log('[v0] Fetching dashboard stats from Supabase');
         
-        const [usersRes, consultationsRes, productsRes, soilAnalysesRes] = await Promise.all([
-          fetch('/api/users'),
-          fetch('/api/consultations'),
-          fetch('/api/products'),
-          fetch('/api/soil-analyses'),
-        ]);
-
         const [usersData, consultationsData, productsData, soilAnalysesData] = await Promise.all([
-          usersRes.json(),
-          consultationsRes.json(),
-          productsRes.json(),
-          soilAnalysesRes.json(),
+          getUsers(),
+          getConsultations(),
+          getProducts(),
+          getSoilAnalyses(),
         ]);
 
         console.log('[v0] Stats fetched:', {
