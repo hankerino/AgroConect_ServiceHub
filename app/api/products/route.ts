@@ -7,9 +7,10 @@ export async function GET() {
     const products = await getProducts();
     console.log('[v0] Products fetched:', products?.length || 0, 'items');
     return NextResponse.json({ data: products, error: null });
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('[v0] Products API error:', error);
-    return NextResponse.json({ data: null, error: error.message }, { status: 500 });
+    const errorMessage = error instanceof Error ? error.message : 'Failed to fetch products';
+    return NextResponse.json({ data: null, error: errorMessage }, { status: 500 });
   }
 }
 

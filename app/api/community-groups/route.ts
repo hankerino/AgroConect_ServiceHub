@@ -1,16 +1,27 @@
 import { NextResponse } from 'next/server';
 import { getCommunityGroups } from '@/api/entities';
 
-export async function GET() {
+// ... other imports and code
+
+export async function GET(req: Request) { // Assuming GET, adjust if it's POST or another method
   try {
-    console.log('[v0] Fetching community groups...');
-    const groups = await getCommunityGroups();
-    console.log('[v0] Community groups fetched:', groups?.length || 0, 'items');
-    return NextResponse.json({ data: groups, error: null });
-  } catch (error) {
+    // ... your existing successful logic here ...
+    // Example:
+    // const response = await fetch('your-supabase-endpoint/community-groups');
+    // const data = await response.json();
+    // return NextResponse.json({ data });
+
+  } catch (error: unknown) { // Explicitly typing it as unknown, good practice
     console.error('[v0] Community groups API error:', error);
-    return NextResponse.json({ data: null, error: error.message }, { status: 500 });
+
+    let errorMessage = 'An unknown error occurred.';
+    if (error instanceof Error) {
+      errorMessage = error.message;
+    } else if (typeof error === 'string') {
+      errorMessage = error;
+    }
+
+    return NextResponse.json({ data: null, error: errorMessage }, { status: 500 });
   }
 }
 
-export const dynamic = 'force-dynamic';

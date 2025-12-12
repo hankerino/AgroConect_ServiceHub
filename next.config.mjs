@@ -1,11 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  typescript: {
-    ignoreBuildErrors: true,
-  },
-  images: {
-    unoptimized: true,
-  },
-}
+  // Removed 'output: export' to enable API routes and server features
+  // Deploy to Vercel for full Next.js support
+};
 
-export default nextConfig
+export default nextConfig;

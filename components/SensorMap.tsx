@@ -54,8 +54,6 @@ export default function SensorMap({ isDrawing, onAreaCalculated, onClear }: Sens
       const drawControl = new L.Control.Draw({
         edit: {
           featureGroup: drawnItems,
-          edit: true,
-          remove: true,
         },
         draw: {
           polygon: {
@@ -63,7 +61,7 @@ export default function SensorMap({ isDrawing, onAreaCalculated, onClear }: Sens
             showArea: true,
           },
           polyline: false,
-          rectangle: true,
+          rectangle: {},
           circle: false,
           marker: false,
           circlemarker: false,
@@ -101,7 +99,14 @@ export default function SensorMap({ isDrawing, onAreaCalculated, onClear }: Sens
 
       drawnItemsRef.current.eachLayer((layer: any) => {
         if (layer instanceof L.Polygon || layer instanceof L.Rectangle) {
-          const area = L.GeometryUtil.geodesicArea(layer.getLatLngs()[0]);
+          // For Polygons and Rectangles, getLatLngs() can return LatLng[] or LatLng[][].
+// We need the outer ring (which is LatLng[]), and then cast it correctly
+// because geodesicArea expects LatLngLiteral[]
+const latLngs = (layer.getLatLngs() as L.LatLng[][])[0] || (layer.getLatLngs() as L.LatLng[]);
+
+// Now, ensure it's treated as LatLngLiteral[] for geodesicArea
+const area = L.GeometryUtil.geodesicArea(latLngs as L.LatLngLiteral[]);
+
           // Convert square meters to hectares
           totalArea += area / 10000;
           shapes.push(layer.toGeoJSON());

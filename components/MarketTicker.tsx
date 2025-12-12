@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { getMarketPrices } from '@/lib/static-api';
 
 interface MarketData {
   id?: string;
@@ -18,15 +19,7 @@ export function MarketTicker() {
   useEffect(() => {
     const fetchMarketData = async () => {
       try {
-        const response = await fetch('/api/market-prices', {
-          cache: 'no-store',
-        });
-        
-        if (!response.ok) {
-          throw new Error(`API responded with status: ${response.status}`);
-        }
-        
-        const result = await response.json();
+        const result = await getMarketPrices();
         
         if (result.error) {
           throw new Error(result.error);
